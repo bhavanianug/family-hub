@@ -1,0 +1,77 @@
+const modules = [
+  {
+    id: 'calendar',
+    index: '01',
+    title: 'Calendar',
+    description: 'Shared group schedule is next — keep busy weeks visible.',
+  },
+  {
+    id: 'opportunities',
+    index: '02',
+    title: 'Opportunities',
+    description: 'Use the Opportunities tab to track programs and deadlines now.',
+  },
+] as const
+
+type DashboardPageProps = {
+  onNavigate: (page: 'calendar' | 'opportunities' | 'group') => void
+}
+
+export function DashboardPage({ onNavigate }: DashboardPageProps) {
+  return (
+    <div className="space-y-8">
+      <section className="surface-panel rounded-3xl p-6 sm:p-8">
+        <p className="text-xs font-bold tracking-[0.22em] text-sage-deep uppercase">
+          Dashboard
+        </p>
+        <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">
+          What’s next
+        </h2>
+        <p className="mt-2 max-w-xl text-ink-soft">
+          Start with opportunities — add a program, set a deadline, and update
+          your status. Calendar comes after.
+        </p>
+        <button
+          type="button"
+          onClick={() => onNavigate('opportunities')}
+          className="mt-5 rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-foam transition hover:bg-sage-deep"
+        >
+          Open opportunities
+        </button>
+      </section>
+
+      <section>
+        <p className="text-xs font-bold tracking-[0.24em] text-sage-deep uppercase">
+          Roadmap
+        </p>
+        <ul className="mt-5 divide-y divide-line border-y border-line">
+          {modules.map((module) => (
+            <li
+              key={module.id}
+              className="grid gap-2 py-6 sm:grid-cols-[4rem_1fr] sm:gap-6"
+            >
+              <span className="font-display text-2xl font-bold text-sage-deep/80">
+                {module.index}
+              </span>
+              <div>
+                <h3 className="font-display text-2xl font-bold tracking-tight text-ink">
+                  {module.title}
+                </h3>
+                <p className="mt-1 max-w-xl text-ink-soft">{module.description}</p>
+                {module.id === 'opportunities' && (
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('opportunities')}
+                    className="mt-3 text-sm font-bold text-sage-deep hover:text-ink"
+                  >
+                    Go to opportunities
+                  </button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  )
+}

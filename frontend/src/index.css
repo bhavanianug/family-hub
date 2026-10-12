@@ -1,0 +1,218 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans: 'Source Sans 3', ui-sans-serif, sans-serif;
+
+  --color-ink: #071526;
+  --color-ink-soft: #2c4a63;
+  --color-mist: #cfe4f4;
+  --color-foam: #f4f9fd;
+  --color-sage: #00c2d1;
+  --color-sage-deep: #008e9b;
+  --color-coral: #ff4d6d;
+  --color-sun: #ffc857;
+  --color-line: rgb(7 21 38 / 0.12);
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply m-0 min-h-screen overflow-x-hidden font-sans text-ink;
+    background: #071526;
+  }
+
+  #root {
+    @apply relative min-h-screen;
+  }
+}
+
+/* Full-bleed scenic plane behind the app */
+.app-sky {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 55% at 15% 0%, rgb(0 194 209 / 0.55), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 95% 10%, rgb(255 77 109 / 0.35), transparent 50%),
+    radial-gradient(ellipse 70% 40% at 60% 100%, rgb(255 200 87 / 0.2), transparent 50%),
+    linear-gradient(180deg, #0b2240 0%, #123556 38%, #d7ebf8 38.1%, #f4f9fd 100%);
+}
+
+.app-sky::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(255 255 255 / 0.12) 0.7px, transparent 0.7px);
+  background-size: 3px 3px;
+  opacity: 0.35;
+  mask-image: linear-gradient(180deg, black 0%, black 34%, transparent 42%);
+}
+
+.app-sky::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34%;
+  height: 18%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgb(255 255 255 / 0.35),
+    transparent
+  );
+  filter: blur(18px);
+  opacity: 0.55;
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-2%) scale(1.02);
+  }
+  to {
+    transform: translateX(2%) scale(1.02);
+  }
+}
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes rise-bar {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-status-pulse {
+  animation: status-pulse 1.8s ease-in-out infinite;
+}
+
+.horizon-glow {
+  position: absolute;
+  top: 28%;
+  left: 50%;
+  width: min(920px, 90vw);
+  height: 140px;
+  translate: -50% 0;
+  border-radius: 999px;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 200 87 / 0.55),
+    rgb(0 194 209 / 0.2),
+    transparent
+  );
+  filter: blur(8px);
+  animation: drift 14s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.brand-mark {
+  color: #f7fbff;
+  letter-spacing: -0.04em;
+  text-shadow: 0 10px 40px rgb(0 0 0 / 0.25);
+}
+
+.brand-mark-dark {
+  color: var(--color-ink);
+  letter-spacing: -0.04em;
+}
+
+.accent-bar {
+  height: 5px;
+  width: 5.5rem;
+  transform-origin: left center;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-sage),
+    var(--color-sun),
+    var(--color-coral)
+  );
+  animation: rise-bar 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.surface-panel {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgb(7 21 38 / 0.08);
+  box-shadow: 0 24px 60px rgb(7 21 38 / 0.08);
+}
+
+.nav-link {
+  position: relative;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  bottom: 0.2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-sage), var(--color-coral));
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.nav-link:hover {
+  transform: translateY(-1px);
+  color: var(--color-ink);
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-status-pulse,
+  .horizon-glow,
+  .accent-bar {
+    animation: none !important;
+  }
+}

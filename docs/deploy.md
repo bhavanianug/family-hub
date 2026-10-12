@@ -1,0 +1,57 @@
+# Deploy Family Hub
+
+Target: **Vercel** (frontend) + **Render** (API) + **Supabase** (already running).
+
+## 1. Supabase migrations
+
+In the SQL Editor, ensure these have been applied (in order):
+
+1. `supabase/migrations/20261010000000_auth_and_core.sql`
+2. `supabase/migrations/20261012000000_opportunity_opens_at.sql`
+3. `supabase/migrations/20261013000000_opportunity_timing_kind.sql`
+
+Auth → URL configuration:
+
+- Add your Vercel URL to **Site URL** and **Redirect URLs**  
+  (e.g. `https://your-app.vercel.app` and `https://your-app.vercel.app/**`)
+
+## 2. Backend on Render
+
+1. [Render](https://render.com) → New → Blueprint, or Web Service from this repo  
+2. Use `render.yaml` (Docker, context `backend/`)  
+3. Set env vars:
+
+| Variable | Value |
+| --- | --- |
+| `SUPABASE_URL` | Project URL |
+| `SUPABASE_JWT_SECRET` | Project Settings → API → JWT Secret |
+| `SUPABASE_ANON_KEY` | anon public key |
+| `CORS_ORIGINS` | `["https://YOUR_APP.vercel.app"]` (JSON array) |
+| `OPENAI_API_KEY` | optional — URL extract in production |
+| `OPENAI_MODEL` | `gpt-5-nano` |
+
+4. Note the API URL, e.g. `https://family-hub-api.onrender.com`
+
+## 3. Frontend on Vercel
+
+1. [Vercel](https://vercel.com) → Import the GitHub repo  
+2. **Root Directory:** `frontend`  
+3. Framework: Vite (auto)  
+4. Env vars:
+
+| Variable | Value |
+| --- | --- |
+| `VITE_SUPABASE_URL` | same as Supabase URL |
+| `VITE_SUPABASE_ANON_KEY` | anon key |
+| `VITE_API_BASE_URL` | Render API URL (no trailing slash) |
+
+5. Deploy → copy the Vercel URL  
+6. Update Render `CORS_ORIGINS` to that URL and redeploy the API if needed
+
+## 4. Smoke check
+
+- `https://YOUR_API/api/health` → `{"status":"ok",...}`  
+- Open the Vercel site → sign up / sign in  
+- Add an opportunity (paste URL or manual)  
+
+**Scan sources** only appears in local `npm run dev`, not in production builds.
