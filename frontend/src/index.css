@@ -7,11 +7,11 @@
   /* Night studio — light type on charcoal, lime accents (no red CTAs) */
   --color-ink: #eef1f6;
   --color-ink-soft: #9aa3b5;
-  --color-mist: rgb(122 196 140 / 0.16);
+  --color-mist: rgb(158 224 90 / 0.15);
   --color-foam: #12141a;
   --color-panel: #1a1d27;
-  --color-sage: #7ac48c;
-  --color-sage-deep: #5fad74;
+  --color-sage: #9ee05a;
+  --color-sage-deep: #86c94a;
   --color-coral: #ff6b8a;
   --color-sun: #ffe566;
   --color-line: rgb(255 255 255 / 0.1);
@@ -37,7 +37,7 @@
   isolation: isolate;
   min-height: 100vh;
   background:
-    radial-gradient(ellipse 55% 42% at 0% 0%, rgb(122 196 140 / 0.14), transparent 55%),
+    radial-gradient(ellipse 55% 42% at 0% 0%, rgb(158 224 90 / 0.13), transparent 55%),
     radial-gradient(ellipse 50% 40% at 100% 0%, rgb(80 120 255 / 0.07), transparent 50%),
     linear-gradient(165deg, #161821 0%, #12141a 50%, #0e1016 100%);
 }
@@ -124,7 +124,7 @@
   width: 4.5rem;
   transform-origin: left center;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--color-sage), rgb(122 196 140 / 0.3));
+  background: linear-gradient(90deg, var(--color-sage), rgb(158 224 90 / 0.28));
   animation: rise-bar 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 
@@ -157,8 +157,8 @@
 }
 
 .list-row:hover {
-  background: rgb(122 196 140 / 0.07);
-  border-color: rgb(122 196 140 / 0.28);
+  background: rgb(158 224 90 / 0.07);
+  border-color: rgb(158 224 90 / 0.28);
 }
 
 .btn-primary {
