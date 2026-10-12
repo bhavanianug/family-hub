@@ -26,7 +26,7 @@ Auth → URL configuration:
 | `SUPABASE_URL` | Project URL |
 | `SUPABASE_JWT_SECRET` | Project Settings → API → JWT Secret |
 | `SUPABASE_ANON_KEY` | anon public key |
-| `CORS_ORIGINS` | `["https://YOUR_APP.vercel.app"]` (JSON array) |
+| `CORS_ORIGINS` | `https://YOUR_APP.vercel.app` (plain URL; comma-separate if several) |
 | `OPENAI_API_KEY` | optional — URL extract in production |
 | `OPENAI_MODEL` | `gpt-5-nano` |
 

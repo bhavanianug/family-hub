@@ -1,5 +1,40 @@
+import json
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _parse_cors_origins(value: object) -> list[str]:
+    """Accept a list, JSON array string, or comma-separated origins."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(item).strip().strip('"').strip("'") for item in value if str(item).strip()]
+    if not isinstance(value, str):
+        return [str(value).strip()] if str(value).strip() else []
+
+    text = value.strip()
+    if not text:
+        return []
+
+    if text.startswith("["):
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, list):
+                return [
+                    str(item).strip().strip('"').strip("'")
+                    for item in parsed
+                    if str(item).strip()
+                ]
+        except json.JSONDecodeError:
+            inner = text.strip("[]")
+            text = inner
+
+    return [
+        part.strip().strip('"').strip("'")
+        for part in text.split(",")
+        if part.strip().strip('"').strip("'")
+    ]
 
 
 class Settings(BaseSettings):
@@ -18,16 +53,8 @@ class Settings(BaseSettings):
 
     @field_validator("cors_origins", mode="before")
     @classmethod
-    def parse_cors_origins(cls, value: object) -> object:
-        """Accept JSON arrays or comma-separated origins from env."""
-        if isinstance(value, str):
-            text = value.strip()
-            if not text:
-                return []
-            if text.startswith("["):
-                return value
-            return [part.strip() for part in text.split(",") if part.strip()]
-        return value
+    def parse_cors_origins(cls, value: object) -> list[str]:
+        return _parse_cors_origins(value)
     supabase_url: str | None = None
     supabase_jwt_secret: str | None = None
     supabase_anon_key: str | None = None
