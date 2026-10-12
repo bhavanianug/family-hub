@@ -22,9 +22,9 @@ export function AuthPage() {
         <div className="app-shell mx-auto flex min-h-screen max-w-lg flex-col justify-center px-5 py-10">
           <h1 className="brand-mark font-display text-5xl font-extrabold">Family Hub</h1>
           <div className="accent-bar mt-4" />
-          <p className="mt-5 text-white/80 leading-relaxed">
+          <p className="mt-5 text-ink-soft leading-relaxed">
             Add your Supabase project keys to{' '}
-            <code className="text-sun">frontend/.env</code>:
+            <code className="text-sage-deep">frontend/.env</code>:
           </p>
           <pre className="surface-panel mt-4 overflow-x-auto rounded-2xl p-4 text-sm text-ink-soft">
             {`VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
@@ -69,25 +69,24 @@ VITE_SUPABASE_ANON_KEY=your-anon-key`}
 
   return (
     <div className="app-sky">
-      <div className="horizon-glow" aria-hidden="true" />
       <div className="app-shell mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-5 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-8">
         <div className="animate-fade-up">
-          <p className="text-[11px] font-bold tracking-[0.28em] text-sage uppercase">
-            Chicago family OS
+          <p className="text-[11px] font-bold tracking-[0.28em] text-sage-deep uppercase">
+            Chicago · teens + family
           </p>
-          <h1 className="brand-mark mt-3 font-display text-[3.6rem] leading-[0.95] font-bold sm:text-7xl">
+          <h1 className="brand-mark mt-3 font-display text-[3.4rem] leading-[0.92] font-extrabold sm:text-6xl">
             Family Hub
           </h1>
           <div className="accent-bar mt-5" />
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-white/80">
-            Keep the week visible. Track the opportunities that actually matter.
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-ink-soft">
+            Deadlines, summer programs, and your week — without the spreadsheet mess.
           </p>
         </div>
 
         <div className="animate-fade-up" style={{ animationDelay: '120ms' }}>
           <form
             onSubmit={onSubmit}
-            className="surface-panel space-y-4 rounded-3xl p-6 sm:p-8"
+            className="surface-panel animate-pop-in space-y-4 rounded-2xl p-6 sm:p-8"
           >
             <div>
               <h2 className="font-display text-2xl font-extrabold text-ink">
@@ -166,7 +165,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key`}
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-bold text-foam transition hover:bg-sage-deep disabled:opacity-60"
+              className="btn-primary w-full rounded-xl px-4 py-3 text-sm font-bold disabled:opacity-60"
             >
               {submitting
                 ? 'Please wait…'

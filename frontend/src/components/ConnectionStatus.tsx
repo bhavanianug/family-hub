@@ -1,15 +1,15 @@
 import type { ConnectionState } from '../types/health'
 
 const labels: Record<ConnectionState, string> = {
-  checking: 'Checking backend…',
-  connected: 'Backend connected',
-  offline: 'Backend offline',
+  checking: 'Checking…',
+  connected: 'Online',
+  offline: 'Offline',
 }
 
 const tones: Record<ConnectionState, string> = {
-  checking: 'bg-white/10 text-white/85 ring-1 ring-white/25',
-  connected: 'bg-sage/20 text-white ring-1 ring-sage/50',
-  offline: 'bg-coral/20 text-white ring-1 ring-coral/50',
+  checking: 'bg-white text-ink-soft ring-1 ring-line',
+  connected: 'bg-mist text-sage-deep ring-1 ring-sage/35',
+  offline: 'bg-coral/10 text-coral ring-1 ring-coral/30',
 }
 
 const dots: Record<ConnectionState, string> = {
@@ -25,13 +25,13 @@ type ConnectionStatusProps = {
 export function ConnectionStatus({ connection }: ConnectionStatusProps) {
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold backdrop-blur-sm transition-colors duration-300 ${tones[connection]}`}
+      className={`inline-flex items-center gap-2 rounded-lg px-2.5 py-1 text-xs font-bold tracking-wide uppercase ${tones[connection]}`}
       data-testid="connection-status"
       role="status"
       aria-live="polite"
     >
       <span
-        className={`size-2.5 rounded-sm ${dots[connection]}`}
+        className={`size-1.5 rounded-sm ${dots[connection]}`}
         aria-hidden="true"
       />
       {labels[connection]}

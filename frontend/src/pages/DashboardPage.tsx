@@ -20,11 +20,11 @@ type DashboardPageProps = {
 export function DashboardPage({ onNavigate }: DashboardPageProps) {
   return (
     <div className="space-y-8">
-      <section className="surface-panel rounded-3xl p-6 sm:p-8">
-        <p className="text-xs font-bold tracking-[0.22em] text-sage-deep uppercase">
-          Dashboard
+      <section className="surface-panel animate-pop-in rounded-2xl p-6 sm:p-8">
+        <p className="text-[11px] font-bold tracking-[0.22em] text-sage-deep uppercase">
+          Home
         </p>
-        <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">
+        <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
           What’s next
         </h2>
         <p className="mt-2 max-w-xl text-ink-soft">
@@ -34,7 +34,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
         <button
           type="button"
           onClick={() => onNavigate('opportunities')}
-          className="mt-5 rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-foam transition hover:bg-sage-deep"
+          className="btn-primary mt-5 rounded-xl px-4 py-2.5 text-sm font-bold"
         >
           Open opportunities
         </button>

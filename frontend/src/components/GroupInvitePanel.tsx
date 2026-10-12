@@ -10,7 +10,7 @@ export function GroupInvitePanel() {
 
   if (loading) {
     return (
-      <section className="surface-panel animate-fade-up rounded-3xl p-6">
+      <section className="surface-panel animate-fade-up rounded-2xl p-6">
         <p className="text-ink-soft">Loading group…</p>
       </section>
     )
@@ -18,7 +18,7 @@ export function GroupInvitePanel() {
 
   if (error) {
     return (
-      <section className="surface-panel animate-fade-up rounded-3xl p-6">
+      <section className="surface-panel animate-fade-up rounded-2xl p-6">
         <p className="text-coral">{error}</p>
       </section>
     )
@@ -33,7 +33,7 @@ export function GroupInvitePanel() {
   return (
     <section
       id="group"
-      className="surface-panel animate-fade-up rounded-3xl p-6 sm:p-8"
+      className="surface-panel animate-fade-up rounded-2xl p-6 sm:p-8"
       style={{ animationDelay: '100ms' }}
     >
       <div className="flex flex-wrap items-end justify-between gap-4">

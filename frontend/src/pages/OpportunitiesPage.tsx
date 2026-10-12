@@ -58,15 +58,15 @@ export function OpportunitiesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold tracking-[0.22em] text-sage-deep uppercase">
+          <p className="text-[11px] font-bold tracking-[0.22em] text-sage-deep uppercase">
             Tracker
           </p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">
+          <h2 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
             Opportunities
           </h2>
-          <p className="mt-2 max-w-xl text-ink-soft">
+          <p className="mt-2 max-w-xl text-sm text-ink-soft sm:text-base">
             {import.meta.env.DEV
-              ? 'Scan curated Chicago STEM pages, paste a URL, or add by hand. Track status and deadlines here.'
+              ? 'Scan curated Chicago STEM pages, paste a URL, or add by hand.'
               : 'Paste a URL or add by hand. Track status and deadlines here.'}
           </p>
         </div>
@@ -76,7 +76,7 @@ export function OpportunitiesPage() {
             setEditing(null)
             setShowForm(true)
           }}
-          className="rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-foam transition hover:bg-sage-deep"
+          className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold"
         >
           Add opportunity
         </button>
@@ -84,16 +84,16 @@ export function OpportunitiesPage() {
 
       {import.meta.env.DEV && <SourceScanPanel onAddMany={add} />}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {filters.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setFilter(item.id)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+            className={`filter-chip rounded-lg px-3 py-1.5 text-sm font-semibold ${
               filter === item.id
                 ? 'bg-ink text-foam'
-                : 'bg-white/70 text-ink-soft ring-1 ring-line hover:text-ink'
+                : 'bg-white text-ink-soft ring-1 ring-line hover:text-ink'
             }`}
           >
             {item.label}
@@ -102,7 +102,7 @@ export function OpportunitiesPage() {
       </div>
 
       {(showForm || editing) && (
-        <section className="surface-panel rounded-3xl p-6 sm:p-8">
+        <section className="surface-panel animate-pop-in rounded-2xl p-5 sm:p-7">
           <h3 className="font-display text-xl font-bold text-ink">
             {editing ? 'Edit opportunity' : 'New opportunity'}
           </h3>
@@ -153,8 +153,8 @@ export function OpportunitiesPage() {
       )}
 
       {!loading && !error && items.length === 0 && (
-        <section className="surface-panel rounded-3xl p-8">
-          <h3 className="font-display text-xl font-bold text-ink">
+        <section className="surface-panel rounded-2xl p-8">
+          <h3 className="font-display text-xl font-extrabold text-ink">
             {allCount === 0 ? 'No opportunities yet' : 'Nothing in this filter'}
           </h3>
           <p className="mt-2 text-ink-soft">
@@ -165,21 +165,23 @@ export function OpportunitiesPage() {
         </section>
       )}
 
-      <ul className="divide-y divide-line border-y border-line">
+      <ul className="space-y-2">
         {items.map((item) => {
           const status = item.tracking?.status ?? 'saved'
           return (
-            <li key={item.id} className="py-5">
+            <li
+              key={item.id}
+              className="list-row animate-pop-in rounded-2xl border border-line bg-white/80 px-4 py-4 sm:px-5"
+            >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0 max-w-2xl">
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide text-sage-deep uppercase">
-                    <span>{labelTimingKind(item.timing_kind)}</span>
-                    <span className="text-line">·</span>
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold tracking-wide text-sage-deep uppercase">
+                    <span className="rounded-md bg-mist px-1.5 py-0.5">
+                      {labelTimingKind(item.timing_kind)}
+                    </span>
                     <span>{labelType(item.opportunity_type)}</span>
-                    <span className="text-line">·</span>
-                    <span>{item.source_type}</span>
                   </div>
-                  <h3 className="mt-1 font-display text-2xl font-bold tracking-tight text-ink">
+                  <h3 className="mt-2 font-display text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
                     {item.title}
                   </h3>
                   <p className="mt-1 text-ink-soft">
@@ -224,7 +226,7 @@ export function OpportunitiesPage() {
                   <label className="text-sm">
                     <span className="sr-only">Status</span>
                     <select
-                      className="rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-ink"
+                      className="rounded-lg border border-line bg-foam px-3 py-2 text-sm font-semibold text-ink"
                       value={status}
                       disabled={busyId === item.id}
                       onChange={async (event) => {

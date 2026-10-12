@@ -7,7 +7,7 @@ import type { ConnectionState } from '../types/health'
 export type AppPage = 'dashboard' | 'calendar' | 'opportunities' | 'group'
 
 const navItems: { id: AppPage; label: string }[] = [
-  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'dashboard', label: 'Home' },
   { id: 'calendar', label: 'Calendar' },
   { id: 'opportunities', label: 'Opportunities' },
   { id: 'group', label: 'Group' },
@@ -30,43 +30,43 @@ export function AppLayout({
 
   return (
     <div className="app-sky">
-      <div className="horizon-glow" aria-hidden="true" />
-      <div className="app-shell mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 pb-16 pt-6 sm:px-8 sm:pt-8">
-        <header className="animate-fade-up border-b border-white/15 pb-8">
-          <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-            <div className="max-w-xl">
-              <p className="text-[11px] font-bold tracking-[0.28em] text-sage uppercase">
-                Chicago family OS
-              </p>
-              <h1 className="brand-mark mt-3 font-display text-[3.5rem] leading-[0.95] font-bold sm:text-7xl">
-                Family Hub
-              </h1>
-              <div className="accent-bar mt-5" />
-              <p className="mt-5 max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
-                Shared schedules and teen opportunities — one clear place for
-                what’s next.
-              </p>
-            </div>
+      <div className="app-shell mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 pb-16 pt-5 sm:px-8 sm:pt-6">
+        <header className="animate-fade-up flex flex-wrap items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => onNavigate('dashboard')}
+            className="text-left"
+          >
+            <p className="text-[10px] font-bold tracking-[0.28em] text-sage-deep uppercase">
+              Chicago · teens + family
+            </p>
+            <h1 className="brand-mark mt-1 font-display text-3xl font-extrabold leading-none sm:text-4xl">
+              Family Hub
+            </h1>
+          </button>
 
-            <div className="flex flex-col items-start gap-3 sm:items-end sm:pt-2">
-              <ConnectionStatus connection={connection} />
-              <div className="flex items-center gap-3 text-sm text-white/75">
-                <span className="max-w-[14rem] truncate">{user?.email}</span>
-                <button
-                  type="button"
-                  onClick={() => void signOut()}
-                  className="font-semibold text-sun transition hover:text-white"
-                >
-                  Sign out
-                </button>
-              </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <ConnectionStatus connection={connection} />
+            <div className="flex items-center gap-2 text-sm text-ink-soft">
+              <span className="hidden max-w-[12rem] truncate sm:inline">
+                {user?.email}
+              </span>
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="rounded-lg px-2.5 py-1.5 font-semibold text-ink-soft transition hover:bg-ink/5 hover:text-ink"
+              >
+                Sign out
+              </button>
             </div>
           </div>
         </header>
 
+        <div className="accent-bar mt-4" />
+
         <nav
-          className="animate-fade-up mt-5 flex flex-wrap gap-1 rounded-2xl bg-white/70 p-1.5 ring-1 ring-line backdrop-blur-md"
-          style={{ animationDelay: '90ms' }}
+          className="animate-fade-up mt-5 flex gap-1 overflow-x-auto pb-1"
+          style={{ animationDelay: '80ms' }}
           aria-label="Primary"
         >
           {navItems.map((item) => {
@@ -76,7 +76,7 @@ export function AppLayout({
                 key={item.id}
                 type="button"
                 onClick={() => onNavigate(item.id)}
-                className={`rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
+                className={`shrink-0 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
                   active
                     ? 'bg-ink text-foam'
                     : 'nav-link text-ink-soft'
@@ -89,7 +89,10 @@ export function AppLayout({
           })}
         </nav>
 
-        <main className="animate-fade-up mt-8 flex-1" style={{ animationDelay: '140ms' }}>
+        <main
+          className="animate-fade-up mt-8 flex-1"
+          style={{ animationDelay: '120ms' }}
+        >
           {children}
         </main>
       </div>

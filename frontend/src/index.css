@@ -1,18 +1,18 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
-  --font-sans: 'Source Sans 3', ui-sans-serif, sans-serif;
+  --font-display: 'Syne', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
 
-  --color-ink: #071526;
-  --color-ink-soft: #2c4a63;
-  --color-mist: #cfe4f4;
-  --color-foam: #f4f9fd;
-  --color-sage: #00c2d1;
-  --color-sage-deep: #008e9b;
-  --color-coral: #ff4d6d;
-  --color-sun: #ffc857;
-  --color-line: rgb(7 21 38 / 0.12);
+  --color-ink: #0c1222;
+  --color-ink-soft: #5b657a;
+  --color-mist: #d9f5ef;
+  --color-foam: #f7f8fa;
+  --color-sage: #00d4a8;
+  --color-sage-deep: #00a884;
+  --color-coral: #ff3b6b;
+  --color-sun: #ffd35a;
+  --color-line: rgb(12 18 34 / 0.1);
 }
 
 @layer base {
@@ -22,7 +22,7 @@
 
   body {
     @apply m-0 min-h-screen overflow-x-hidden font-sans text-ink;
-    background: #071526;
+    background: #f7f8fa;
   }
 
   #root {
@@ -30,16 +30,14 @@
   }
 }
 
-/* Full-bleed scenic plane behind the app */
 .app-sky {
   position: relative;
   isolation: isolate;
   min-height: 100vh;
   background:
-    radial-gradient(ellipse 80% 55% at 15% 0%, rgb(0 194 209 / 0.55), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 95% 10%, rgb(255 77 109 / 0.35), transparent 50%),
-    radial-gradient(ellipse 70% 40% at 60% 100%, rgb(255 200 87 / 0.2), transparent 50%),
-    linear-gradient(180deg, #0b2240 0%, #123556 38%, #d7ebf8 38.1%, #f4f9fd 100%);
+    radial-gradient(ellipse 55% 40% at 0% 0%, rgb(0 212 168 / 0.16), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 100% 0%, rgb(255 59 107 / 0.1), transparent 50%),
+    linear-gradient(165deg, #f3f5f8 0%, #f7f8fa 55%, #eefaf6 100%);
 }
 
 .app-sky::before {
@@ -48,29 +46,10 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: radial-gradient(rgb(255 255 255 / 0.12) 0.7px, transparent 0.7px);
-  background-size: 3px 3px;
-  opacity: 0.35;
-  mask-image: linear-gradient(180deg, black 0%, black 34%, transparent 42%);
-}
-
-.app-sky::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 34%;
-  height: 18%;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgb(255 255 255 / 0.35),
-    transparent
-  );
-  filter: blur(18px);
-  opacity: 0.55;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: soft-light;
 }
 
 .app-shell {
@@ -81,20 +60,11 @@
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes drift {
-  from {
-    transform: translateX(-2%) scale(1.02);
-  }
-  to {
-    transform: translateX(2%) scale(1.02);
   }
 }
 
@@ -119,100 +89,104 @@
   }
 }
 
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-fade-up {
-  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-pop-in {
+  animation: pop-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .animate-status-pulse {
   animation: status-pulse 1.8s ease-in-out infinite;
 }
 
-.horizon-glow {
-  position: absolute;
-  top: 28%;
-  left: 50%;
-  width: min(920px, 90vw);
-  height: 140px;
-  translate: -50% 0;
-  border-radius: 999px;
-  background: radial-gradient(
-    closest-side,
-    rgb(255 200 87 / 0.55),
-    rgb(0 194 209 / 0.2),
-    transparent
-  );
-  filter: blur(8px);
-  animation: drift 14s ease-in-out infinite alternate;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .brand-mark {
-  color: #f7fbff;
-  letter-spacing: -0.04em;
-  text-shadow: 0 10px 40px rgb(0 0 0 / 0.25);
-}
-
-.brand-mark-dark {
   color: var(--color-ink);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
 }
 
 .accent-bar {
-  height: 5px;
-  width: 5.5rem;
+  height: 4px;
+  width: 4.5rem;
   transform-origin: left center;
-  border-radius: 999px;
+  border-radius: 2px;
   background: linear-gradient(
     90deg,
     var(--color-sage),
-    var(--color-sun),
     var(--color-coral)
   );
-  animation: rise-bar 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+  animation: rise-bar 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 
 .surface-panel {
-  background: rgb(255 255 255 / 0.72);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgb(7 21 38 / 0.08);
-  box-shadow: 0 24px 60px rgb(7 21 38 / 0.08);
+  background: rgb(255 255 255 / 0.88);
+  border: 1px solid rgb(12 18 34 / 0.08);
+  box-shadow: 0 1px 0 rgb(12 18 34 / 0.03);
 }
 
 .nav-link {
-  position: relative;
   transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0.65rem;
-  right: 0.65rem;
-  bottom: 0.2rem;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--color-sage), var(--color-coral));
-  transform: scaleX(0);
-  transition: transform 0.2s ease;
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .nav-link:hover {
-  transform: translateY(-1px);
   color: var(--color-ink);
+  background: rgb(12 18 34 / 0.04);
 }
 
-.nav-link:hover::after {
-  transform: scaleX(1);
+.filter-chip {
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.list-row {
+  transition: background-color 0.15s ease;
+}
+
+.list-row:hover {
+  background: rgb(0 212 168 / 0.05);
+}
+
+.btn-primary {
+  background: var(--color-ink);
+  color: var(--color-foam);
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: #1a2336;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
+  .animate-pop-in,
   .animate-status-pulse,
-  .horizon-glow,
   .accent-bar {
     animation: none !important;
+  }
+
+  .btn-primary:active {
+    transform: none;
   }
 }

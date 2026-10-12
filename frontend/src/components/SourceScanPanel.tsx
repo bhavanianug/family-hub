@@ -36,8 +36,8 @@ export function SourceScanPanel({ onAddMany }: SourceScanPanelProps) {
       try {
         const result = await fetchCuratedSources(session.access_token)
         if (cancelled) return
-        setSources(result.sources)
-        setLlmEnabled(result.llm_enabled)
+        setSources(result.sources ?? [])
+        setLlmEnabled(Boolean(result.llm_enabled))
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Could not load sources')
@@ -124,7 +124,7 @@ export function SourceScanPanel({ onAddMany }: SourceScanPanelProps) {
   }
 
   return (
-    <section className="surface-panel rounded-3xl p-6 sm:p-8">
+    <section className="surface-panel rounded-2xl p-5 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h3 className="font-display text-xl font-bold text-ink">Scan sources</h3>

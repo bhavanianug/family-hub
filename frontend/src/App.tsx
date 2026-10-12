@@ -11,7 +11,7 @@ function AppGate() {
 
   if (loading) {
     return (
-      <div className="app-sky flex min-h-screen items-center justify-center text-white/80">
+      <div className="app-sky flex min-h-screen items-center justify-center text-ink-soft">
         Loading…
       </div>
     )

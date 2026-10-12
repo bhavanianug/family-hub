@@ -122,7 +122,7 @@ describe('Family Hub home page', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('connection-status')).toHaveTextContent(
-        'Backend connected',
+        'Online',
       )
     })
   })
@@ -134,7 +134,7 @@ describe('Family Hub home page', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('connection-status')).toHaveTextContent(
-        'Backend offline',
+        'Offline',
       )
     })
   })

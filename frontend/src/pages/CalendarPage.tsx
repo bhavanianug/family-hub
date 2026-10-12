@@ -1,6 +1,6 @@
 export function CalendarPage() {
   return (
-    <section className="surface-panel rounded-3xl p-6 sm:p-8">
+    <section className="surface-panel rounded-2xl p-6 sm:p-8">
       <p className="text-xs font-bold tracking-[0.22em] text-sage-deep uppercase">
         Shared schedule
       </p>
