@@ -4,15 +4,17 @@
   --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
 
-  --color-ink: #0c1222;
-  --color-ink-soft: #5b657a;
-  --color-mist: #d9f5ef;
-  --color-foam: #f7f8fa;
-  --color-sage: #00d4a8;
-  --color-sage-deep: #00a884;
-  --color-coral: #ff3b6b;
-  --color-sun: #ffd35a;
-  --color-line: rgb(12 18 34 / 0.1);
+  /* Night studio — light type on charcoal, lime accents (no red CTAs) */
+  --color-ink: #eef1f6;
+  --color-ink-soft: #9aa3b5;
+  --color-mist: rgb(182 255 61 / 0.14);
+  --color-foam: #12141a;
+  --color-panel: #1a1d27;
+  --color-sage: #b6ff3d;
+  --color-sage-deep: #9ae620;
+  --color-coral: #ff6b8a;
+  --color-sun: #ffe566;
+  --color-line: rgb(255 255 255 / 0.1);
 }
 
 @layer base {
@@ -22,7 +24,7 @@
 
   body {
     @apply m-0 min-h-screen overflow-x-hidden font-sans text-ink;
-    background: #f7f8fa;
+    background: #12141a;
   }
 
   #root {
@@ -35,9 +37,9 @@
   isolation: isolate;
   min-height: 100vh;
   background:
-    radial-gradient(ellipse 55% 40% at 0% 0%, rgb(0 212 168 / 0.16), transparent 55%),
-    radial-gradient(ellipse 45% 35% at 100% 0%, rgb(255 59 107 / 0.1), transparent 50%),
-    linear-gradient(165deg, #f3f5f8 0%, #f7f8fa 55%, #eefaf6 100%);
+    radial-gradient(ellipse 55% 42% at 0% 0%, rgb(182 255 61 / 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 0%, rgb(80 120 255 / 0.08), transparent 50%),
+    linear-gradient(165deg, #161821 0%, #12141a 50%, #0e1016 100%);
 }
 
 .app-sky::before {
@@ -46,9 +48,9 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.4;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
   mix-blend-mode: soft-light;
 }
 
@@ -122,18 +124,13 @@
   width: 4.5rem;
   transform-origin: left center;
   border-radius: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--color-sage),
-    var(--color-coral)
-  );
+  background: linear-gradient(90deg, var(--color-sage), rgb(182 255 61 / 0.25));
   animation: rise-bar 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 
 .surface-panel {
-  background: rgb(255 255 255 / 0.88);
-  border: 1px solid rgb(12 18 34 / 0.08);
-  box-shadow: 0 1px 0 rgb(12 18 34 / 0.03);
+  background: rgb(26 29 39 / 0.92);
+  border: 1px solid rgb(255 255 255 / 0.08);
 }
 
 .nav-link {
@@ -144,7 +141,7 @@
 
 .nav-link:hover {
   color: var(--color-ink);
-  background: rgb(12 18 34 / 0.04);
+  background: rgb(255 255 255 / 0.06);
 }
 
 .filter-chip {
@@ -155,23 +152,26 @@
 }
 
 .list-row {
-  transition: background-color 0.15s ease;
+  background: rgb(26 29 39 / 0.88);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .list-row:hover {
-  background: rgb(0 212 168 / 0.05);
+  background: rgb(182 255 61 / 0.06);
+  border-color: rgb(182 255 61 / 0.25);
 }
 
 .btn-primary {
-  background: var(--color-ink);
-  color: var(--color-foam);
+  background: var(--color-sage);
+  color: #0c0e14;
   transition:
     background-color 0.15s ease,
     transform 0.15s ease;
 }
 
 .btn-primary:hover {
-  background: #1a2336;
+  background: var(--color-sage-deep);
+  color: #0c0e14;
 }
 
 .btn-primary:active {

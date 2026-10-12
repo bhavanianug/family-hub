@@ -137,7 +137,7 @@ export function SourceScanPanel({ onAddMany }: SourceScanPanelProps) {
           type="button"
           onClick={() => void handleScan()}
           disabled={scanning || loadingSources}
-          className="rounded-xl bg-sage-deep px-4 py-2.5 text-sm font-bold text-foam transition hover:bg-ink disabled:opacity-60"
+          className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
         >
           {scanning ? 'Scanning…' : 'Scan sources'}
         </button>
@@ -272,7 +272,7 @@ export function SourceScanPanel({ onAddMany }: SourceScanPanelProps) {
             type="button"
             disabled={saving || selected.size === 0}
             onClick={() => void handleAddSelected()}
-            className="rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-foam transition hover:bg-sage-deep disabled:opacity-60"
+            className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
           >
             {saving
               ? 'Adding…'

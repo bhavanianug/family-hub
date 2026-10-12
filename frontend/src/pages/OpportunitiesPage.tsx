@@ -92,8 +92,8 @@ export function OpportunitiesPage() {
             onClick={() => setFilter(item.id)}
             className={`filter-chip rounded-lg px-3 py-1.5 text-sm font-semibold ${
               filter === item.id
-                ? 'bg-ink text-foam'
-                : 'bg-white text-ink-soft ring-1 ring-line hover:text-ink'
+                ? 'bg-sage text-foam'
+                : 'bg-panel text-ink-soft ring-1 ring-line hover:text-ink'
             }`}
           >
             {item.label}
@@ -171,7 +171,7 @@ export function OpportunitiesPage() {
           return (
             <li
               key={item.id}
-              className="list-row animate-pop-in rounded-2xl border border-line bg-white/80 px-4 py-4 sm:px-5"
+              className="list-row animate-pop-in rounded-2xl border border-line px-4 py-4 sm:px-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0 max-w-2xl">
@@ -226,7 +226,7 @@ export function OpportunitiesPage() {
                   <label className="text-sm">
                     <span className="sr-only">Status</span>
                     <select
-                      className="rounded-lg border border-line bg-foam px-3 py-2 text-sm font-semibold text-ink"
+                      className="rounded-lg border border-line bg-panel px-3 py-2 text-sm font-semibold text-ink"
                       value={status}
                       disabled={busyId === item.id}
                       onChange={async (event) => {

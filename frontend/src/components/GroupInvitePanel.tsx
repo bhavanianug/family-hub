@@ -49,7 +49,7 @@ export function GroupInvitePanel() {
             share the code so everyone can add to the calendar.
           </p>
         </div>
-        <code className="rounded-2xl bg-ink px-5 py-3 font-display text-2xl font-extrabold tracking-[0.24em] text-foam">
+        <code className="rounded-2xl bg-panel px-5 py-3 font-display text-2xl font-extrabold tracking-[0.24em] text-sage ring-1 ring-line">
           {group.invite_code}
         </code>
       </div>
@@ -107,7 +107,7 @@ export function GroupInvitePanel() {
           </p>
           <div className="flex gap-2">
             <input
-              className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-2.5 uppercase tracking-wider text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/25"
+              className="min-w-0 flex-1 rounded-lg border border-line bg-panel px-3 py-2.5 uppercase tracking-wider text-ink outline-none focus:border-sage focus:ring-2 focus:ring-sage/25"
               placeholder="INVITE"
               value={inviteInput}
               onChange={(event) => setInviteInput(event.target.value)}
@@ -115,7 +115,7 @@ export function GroupInvitePanel() {
             <button
               type="submit"
               disabled={busy || !inviteInput.trim()}
-              className="rounded-lg bg-ink px-4 py-2 text-sm font-bold text-foam transition hover:bg-sage-deep disabled:opacity-60"
+              className="btn-primary rounded-lg px-4 py-2 text-sm font-bold disabled:opacity-60"
             >
               Join
             </button>

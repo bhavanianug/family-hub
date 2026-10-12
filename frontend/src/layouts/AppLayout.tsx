@@ -37,7 +37,7 @@ export function AppLayout({
             onClick={() => onNavigate('dashboard')}
             className="text-left"
           >
-            <p className="text-[10px] font-bold tracking-[0.28em] text-sage-deep uppercase">
+            <p className="text-[10px] font-bold tracking-[0.28em] text-sage uppercase">
               Chicago · teens + family
             </p>
             <h1 className="brand-mark mt-1 font-display text-3xl font-extrabold leading-none sm:text-4xl">
@@ -54,7 +54,7 @@ export function AppLayout({
               <button
                 type="button"
                 onClick={() => void signOut()}
-                className="rounded-lg px-2.5 py-1.5 font-semibold text-ink-soft transition hover:bg-ink/5 hover:text-ink"
+                className="rounded-lg px-2.5 py-1.5 font-semibold text-ink-soft transition hover:bg-white/5 hover:text-ink"
               >
                 Sign out
               </button>
@@ -78,7 +78,7 @@ export function AppLayout({
                 onClick={() => onNavigate(item.id)}
                 className={`shrink-0 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
                   active
-                    ? 'bg-ink text-foam'
+                    ? 'bg-sage text-foam'
                     : 'nav-link text-ink-soft'
                 }`}
                 aria-current={active ? 'page' : undefined}

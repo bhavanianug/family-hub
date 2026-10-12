@@ -7,8 +7,8 @@ const labels: Record<ConnectionState, string> = {
 }
 
 const tones: Record<ConnectionState, string> = {
-  checking: 'bg-white text-ink-soft ring-1 ring-line',
-  connected: 'bg-mist text-sage-deep ring-1 ring-sage/35',
+  checking: 'bg-panel text-ink-soft ring-1 ring-line',
+  connected: 'bg-mist text-sage ring-1 ring-sage/30',
   offline: 'bg-coral/10 text-coral ring-1 ring-coral/30',
 }
 

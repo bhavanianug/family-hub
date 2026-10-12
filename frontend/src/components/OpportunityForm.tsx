@@ -15,7 +15,7 @@ import {
 } from '../types/opportunity'
 
 const fieldClass =
-  'mt-1 w-full rounded-lg border border-line bg-white px-3 py-2.5 text-ink outline-none transition focus:border-sage focus:ring-2 focus:ring-sage/25'
+  'mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2.5 text-ink outline-none transition focus:border-sage focus:ring-2 focus:ring-sage/25'
 
 type OpportunityFormProps = {
   initial?: OpportunityWithTracking | null
@@ -243,7 +243,7 @@ export function OpportunityForm({
             type="button"
             onClick={() => void handleExtract()}
             disabled={extracting || !sourceUrl.trim()}
-            className="rounded-xl bg-sage-deep px-4 py-2.5 text-sm font-bold text-foam transition hover:bg-ink disabled:opacity-60"
+            className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
           >
             {extracting ? 'Pulling…' : 'Pull details'}
           </button>
@@ -503,7 +503,7 @@ export function OpportunityForm({
         <button
           type="submit"
           disabled={submitting || (multiMode && selectedCount === 0)}
-          className="rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-foam transition hover:bg-sage-deep disabled:opacity-60"
+          className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
         >
           {submitting
             ? 'Saving…'
