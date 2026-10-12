@@ -1,7 +1,8 @@
 import json
+from typing import Annotated
 
 from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 def _parse_cors_origins(value: object) -> list[str]:
@@ -46,7 +47,9 @@ class Settings(BaseSettings):
 
     app_name: str = "Family Hub API"
     environment: str = "development"
-    cors_origins: list[str] = [
+    # NoDecode: pydantic-settings otherwise JSON-parses list fields and
+    # rejects plain URLs like https://app.vercel.app before validators run.
+    cors_origins: Annotated[list[str], NoDecode] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
