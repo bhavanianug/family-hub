@@ -28,10 +28,9 @@ Return ONLY valid JSON matching the schema. Do not invent facts.
 - deadline_date = YYYY-MM-DD when applications CLOSE (end of window / apply-by date). Same example → deadline_date 2027-03-01.
 - Never invent exact days from vague wording. Soft phrases ("opens in January", "announced in November") go in application_timing, and leave opens_date/deadline_date null unless a calendar day is stated.
 - Always fill application_timing with a short human summary of the apply window when present (open + close + next cycle notes).
-- timing_kind must be one of: "summer", "ongoing", "other".
+- timing_kind must be one of: "summer", "ongoing".
   - summer = summer program / summer internship / summer research (runs mainly in summer).
-  - ongoing = year-round, rolling, weekly clubs, drop-in, continuous programming.
-  - other = school-year only, one-off events, competitions, scholarships, or unclear.
+  - ongoing = everything else (year-round, school-year, rolling, clubs, one-offs, unclear).
 - Prefer upcoming apply windows. Do NOT use past news dates, past session end dates, or article publish dates as opens_date/deadline_date.
 - Ignore "Related News", blog posts, press releases, and photo galleries — they are not opportunities.
 - If the page lists multiple programs/events to apply for, put each in candidates (each with its own opens_date/deadline_date/timing_kind when known).
@@ -49,7 +48,7 @@ _SCHEMA_HINT = {
     "opens_date": "YYYY-MM-DD or null",
     "deadline_date": "YYYY-MM-DD or null",
     "application_timing": "string or null",
-    "timing_kind": "summer | ongoing | other",
+    "timing_kind": "summer | ongoing",
     "eligibility": "string or null",
     "candidates": [
         {
@@ -58,7 +57,7 @@ _SCHEMA_HINT = {
             "opens_date": "YYYY-MM-DD or null",
             "deadline_date": "YYYY-MM-DD or null",
             "application_timing": "string or null",
-            "timing_kind": "summer | ongoing | other",
+            "timing_kind": "summer | ongoing",
             "eligibility": "string or null",
             "location": "string or null",
             "source_url": "string or null",
@@ -72,8 +71,10 @@ def _parse_timing_kind(value: object) -> TimingKind | None:
     if value is None:
         return None
     kind = str(value).strip().lower()
-    if kind in ("summer", "ongoing", "other"):
-        return kind  # type: ignore[return-value]
+    if kind == "summer":
+        return "summer"
+    if kind in ("ongoing", "other", "year-round", "year_round"):
+        return "ongoing"
     return None
 
 

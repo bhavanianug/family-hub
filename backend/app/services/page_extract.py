@@ -47,12 +47,10 @@ _ONGOING_HINT = re.compile(
 def _infer_timing_kind(*parts: str | None) -> TimingKind:
     text = " ".join(p for p in parts if p)
     if not text:
-        return "other"
+        return "ongoing"
     if _SUMMER_HINT.search(text):
         return "summer"
-    if _ONGOING_HINT.search(text):
-        return "ongoing"
-    return "other"
+    return "ongoing"
 
 
 def _assert_public_url(url: str) -> None:

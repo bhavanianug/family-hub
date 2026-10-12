@@ -101,7 +101,7 @@ export function SourceScanPanel({ onAddMany }: SourceScanPanelProps) {
         title: item.title,
         organization: item.organization ?? undefined,
         opportunity_type: 'program',
-        timing_kind: item.timing_kind ?? 'other',
+        timing_kind: item.timing_kind === 'summer' ? 'summer' : 'ongoing',
         description: item.description ?? undefined,
         location: item.location ?? 'Chicago, IL',
         source_url: item.item_url || item.source_url,
@@ -224,11 +224,7 @@ export function SourceScanPanel({ onAddMany }: SourceScanPanelProps) {
                     <span className="block font-semibold text-ink">{item.title}</span>
                     <span className="mt-0.5 block text-xs text-ink-soft">
                       {[
-                        item.timing_kind === 'summer'
-                          ? 'Summer'
-                          : item.timing_kind === 'ongoing'
-                            ? 'Ongoing'
-                            : null,
+                        item.timing_kind === 'summer' ? 'Summer' : 'Ongoing',
                         item.source_name,
                         item.organization,
                       ]

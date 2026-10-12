@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, HttpUrl
 
-TimingKind = Literal["summer", "ongoing", "other"]
+TimingKind = Literal["summer", "ongoing", "other"]  # other kept for legacy payloads
 
 
 class ExtractRequest(BaseModel):

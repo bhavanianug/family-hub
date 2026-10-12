@@ -33,10 +33,12 @@ export function labelType(type: OpportunityType): string {
   return type.replaceAll('_', ' ')
 }
 
-export function labelTimingKind(kind: TimingKind): string {
-  if (kind === 'summer') return 'Summer'
-  if (kind === 'ongoing') return 'Ongoing'
-  return 'Other'
+export function normalizeTimingKind(kind: TimingKind | null | undefined): 'summer' | 'ongoing' {
+  return kind === 'summer' ? 'summer' : 'ongoing'
+}
+
+export function labelTimingKind(kind: TimingKind | null | undefined): string {
+  return normalizeTimingKind(kind) === 'summer' ? 'Summer' : 'Ongoing'
 }
 
 export function labelStatus(status: TrackingStatus): string {

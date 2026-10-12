@@ -9,6 +9,7 @@ import type {
 import { useAuth } from '../auth/AuthProvider'
 import { useGroup } from '../group/useGroup'
 import { useCurrentPerson } from '../people/useCurrentPerson'
+import { normalizeTimingKind } from './format'
 import {
   createOpportunities,
   deleteOpportunity,
@@ -68,9 +69,9 @@ export function useOpportunities() {
       const status = item.tracking?.status
       switch (filter) {
         case 'summer':
-          return item.timing_kind === 'summer'
+          return normalizeTimingKind(item.timing_kind) === 'summer'
         case 'ongoing':
-          return item.timing_kind === 'ongoing'
+          return normalizeTimingKind(item.timing_kind) === 'ongoing'
         case 'due_soon':
           return isDueSoon(item.deadline_at)
         case 'open':

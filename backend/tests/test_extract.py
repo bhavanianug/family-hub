@@ -75,7 +75,7 @@ def test_extract_candidates_from_details_accordion() -> None:
 def test_infer_timing_kind_summer_and_ongoing() -> None:
     assert _infer_timing_kind("PRISM Summer Research") == "summer"
     assert _infer_timing_kind("Teen Club", "Year-round drop-in programming") == "ongoing"
-    assert _infer_timing_kind("One-day competition") == "other"
+    assert _infer_timing_kind("One-day competition") == "ongoing"
 
 
 def test_find_application_timing_soft_copy() -> None:

@@ -11,8 +11,9 @@ export const OPPORTUNITY_TYPES = [
 
 export type OpportunityType = (typeof OPPORTUNITY_TYPES)[number]
 
-export const TIMING_KINDS = ['summer', 'ongoing', 'other'] as const
-export type TimingKind = (typeof TIMING_KINDS)[number]
+/** Stored values may still include legacy `other` — treat that as ongoing in the UI. */
+export const TIMING_KINDS = ['summer', 'ongoing'] as const
+export type TimingKind = 'summer' | 'ongoing' | 'other'
 
 export const TRACKING_STATUSES = [
   'saved',

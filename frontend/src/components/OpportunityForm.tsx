@@ -10,7 +10,6 @@ import {
   type OpportunityInput,
   type OpportunityType,
   type OpportunityWithTracking,
-  type TimingKind,
   type TrackingStatus,
 } from '../types/opportunity'
 
@@ -38,8 +37,8 @@ export function OpportunityForm({
   const [opportunityType, setOpportunityType] = useState<OpportunityType>(
     initial?.opportunity_type ?? 'program',
   )
-  const [timingKind, setTimingKind] = useState<TimingKind>(
-    initial?.timing_kind ?? 'other',
+  const [timingKind, setTimingKind] = useState<'summer' | 'ongoing'>(
+    initial?.timing_kind === 'summer' ? 'summer' : 'ongoing',
   )
   const [sourceUrl, setSourceUrl] = useState(initial?.source_url ?? '')
   const [opens, setOpens] = useState(deadlineInputValue(initial?.opens_at ?? null))
@@ -119,7 +118,8 @@ export function OpportunityForm({
         if (extracted.eligibility) setEligibility(extracted.eligibility)
         const kind =
           nextCandidates[0]?.timing_kind ?? extracted.timing_kind
-        if (kind) setTimingKind(kind)
+        if (kind === 'summer') setTimingKind('summer')
+        else if (kind) setTimingKind('ongoing')
         const timing =
           nextCandidates[0]?.application_timing ?? extracted.application_timing
         if (timing && !notes.trim()) {
@@ -194,7 +194,10 @@ export function OpportunityForm({
           description: candidate.description ?? undefined,
           opens_at: deadlineToIso(candidate.opens_date ?? ''),
           deadline_at: deadlineToIso(candidate.deadline_date ?? ''),
-          timing_kind: candidate.timing_kind ?? shared.timing_kind,
+          timing_kind:
+            candidate.timing_kind === 'summer'
+              ? 'summer'
+              : (shared.timing_kind ?? 'ongoing'),
           eligibility: candidate.eligibility ?? undefined,
           location: candidate.location || shared.location,
           source_url: candidate.source_url || shared.source_url,
@@ -364,15 +367,13 @@ export function OpportunityForm({
           <select
             className={fieldClass}
             value={timingKind}
-            onChange={(event) => setTimingKind(event.target.value as TimingKind)}
+            onChange={(event) =>
+              setTimingKind(event.target.value === 'summer' ? 'summer' : 'ongoing')
+            }
           >
             {TIMING_KINDS.map((kind) => (
               <option key={kind} value={kind}>
-                {kind === 'summer'
-                  ? 'Summer'
-                  : kind === 'ongoing'
-                    ? 'Ongoing / year-round'
-                    : 'Other'}
+                {kind === 'summer' ? 'Summer' : 'Ongoing / year-round'}
               </option>
             ))}
           </select>
