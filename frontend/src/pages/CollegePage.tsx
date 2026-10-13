@@ -8,7 +8,13 @@ import {
   type TimelineRow,
 } from '../features/college/seed'
 
-type CollegeTab = 'aid' | 'plan'
+type CollegeTab = 'coming' | 'aid' | 'plan'
+
+const tabs: { id: CollegeTab; label: string }[] = [
+  { id: 'coming', label: 'Coming up' },
+  { id: 'aid', label: 'Aid' },
+  { id: 'plan', label: 'Plan' },
+]
 
 function TimelineList({ rows }: { rows: TimelineRow[] }) {
   return (
@@ -46,10 +52,10 @@ function ResourceList({ links }: { links: ResourceLink[] }) {
 }
 
 export function CollegePage() {
-  const [tab, setTab] = useState<CollegeTab>('aid')
+  const [tab, setTab] = useState<CollegeTab>('coming')
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <div>
         <p className="text-[11px] font-bold tracking-[0.22em] text-sage uppercase">
           Postsecondary
@@ -58,46 +64,18 @@ export function CollegePage() {
           College
         </h2>
         <p className="mt-2 max-w-xl text-sm text-ink-soft sm:text-base">
-          What’s next, plus aid and plan timelines — kept short on purpose.
+          Coming up first — then Aid and Plan, each with its own timeline and
+          resources.
         </p>
       </div>
 
       <section>
-        <h3 className="text-[11px] font-bold tracking-[0.22em] text-sage uppercase">
-          Coming up
-        </h3>
-        <ul className="mt-3 divide-y divide-line border-y border-line">
-          {collegeComingUp.map((item) => (
-            <li
-              key={item.id}
-              className="flex flex-wrap items-baseline justify-between gap-2 py-3"
-            >
-              <div className="min-w-0">
-                <p className="font-semibold text-ink">{item.title}</p>
-                <p className="mt-0.5 text-xs font-bold tracking-wide text-ink-soft uppercase">
-                  {item.source === 'aid' ? 'Aid' : 'Plan'}
-                </p>
-              </div>
-              <span className="shrink-0 text-sm font-bold text-sage">
-                {item.dateLabel}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
         <div
-          className="flex gap-1 border-b border-line"
+          className="flex flex-wrap gap-1 border-b border-line"
           role="tablist"
           aria-label="College sections"
         >
-          {(
-            [
-              { id: 'aid', label: 'Aid' },
-              { id: 'plan', label: 'Plan' },
-            ] as const
-          ).map((item) => {
+          {tabs.map((item) => {
             const active = tab === item.id
             return (
               <button
@@ -117,6 +95,29 @@ export function CollegePage() {
             )
           })}
         </div>
+
+        {tab === 'coming' && (
+          <div className="mt-6" role="tabpanel">
+            <ul className="divide-y divide-line border-y border-line">
+              {collegeComingUp.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex flex-wrap items-baseline justify-between gap-2 py-3.5"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-ink">{item.title}</p>
+                    <p className="mt-0.5 text-xs font-bold tracking-wide text-ink-soft uppercase">
+                      {item.source === 'aid' ? 'Aid' : 'Plan'}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-bold text-sage">
+                    {item.dateLabel}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {tab === 'aid' && (
           <div className="mt-6 space-y-8" role="tabpanel">
