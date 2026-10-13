@@ -60,13 +60,13 @@ export async function updateCollegeTarget(
   if (patch.name !== undefined) payload.name = patch.name.trim()
   if (patch.band !== undefined) payload.band = patch.band
   if (patch.source_url !== undefined) {
-    payload.source_url = patch.source_url.trim() || null
+    payload.source_url = patch.source_url?.trim() || null
   }
   if (patch.why_this_college !== undefined) {
-    payload.why_this_college = patch.why_this_college.trim() || null
+    payload.why_this_college = patch.why_this_college?.trim() || null
   }
   if (patch.notes !== undefined) {
-    payload.notes = patch.notes.trim() || null
+    payload.notes = patch.notes?.trim() || null
   }
   if (patch.deadline_early_action !== undefined) {
     payload.deadline_early_action = patch.deadline_early_action
