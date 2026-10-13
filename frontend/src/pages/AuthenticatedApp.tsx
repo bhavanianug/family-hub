@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useHealth } from '../features/health/useHealth'
 import { AppLayout, type AppPage } from '../layouts/AppLayout'
 import { CalendarPage } from './CalendarPage'
+import { CollegePage } from './CollegePage'
 import { DashboardPage } from './DashboardPage'
 import { GroupPage } from './GroupPage'
 import { OpportunitiesPage } from './OpportunitiesPage'
@@ -16,6 +17,7 @@ export function AuthenticatedApp() {
       {page === 'dashboard' && <DashboardPage onNavigate={setPage} />}
       {page === 'calendar' && <CalendarPage />}
       {page === 'opportunities' && <OpportunitiesPage />}
+      {page === 'college' && <CollegePage />}
       {page === 'group' && <GroupPage />}
     </AppLayout>
   )

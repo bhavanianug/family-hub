@@ -1,20 +1,28 @@
+import type { AppPage } from '../layouts/AppLayout'
+
 const modules = [
   {
-    id: 'calendar',
+    id: 'opportunities' as const,
     index: '01',
-    title: 'Calendar',
-    description: 'Shared group schedule is next — keep busy weeks visible.',
+    title: 'Opportunities',
+    description: 'Programs, deadlines, and status tracking.',
   },
   {
-    id: 'opportunities',
+    id: 'college' as const,
     index: '02',
-    title: 'Opportunities',
-    description: 'Use the Opportunities tab to track programs and deadlines now.',
+    title: 'College',
+    description: 'Aid and plan timelines, plus key resources.',
   },
-] as const
+  {
+    id: 'calendar' as const,
+    index: '03',
+    title: 'Calendar',
+    description: 'Shared group schedule is next.',
+  },
+]
 
 type DashboardPageProps = {
-  onNavigate: (page: 'calendar' | 'opportunities' | 'group') => void
+  onNavigate: (page: AppPage) => void
 }
 
 export function DashboardPage({ onNavigate }: DashboardPageProps) {
@@ -58,13 +66,13 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                   {module.title}
                 </h3>
                 <p className="mt-1 max-w-xl text-ink-soft">{module.description}</p>
-                {module.id === 'opportunities' && (
+                {(module.id === 'opportunities' || module.id === 'college') && (
                   <button
                     type="button"
-                    onClick={() => onNavigate('opportunities')}
-                    className="mt-3 text-sm font-bold text-sage-deep hover:text-ink"
+                    onClick={() => onNavigate(module.id)}
+                    className="mt-3 text-sm font-bold text-sage hover:text-ink"
                   >
-                    Go to opportunities
+                    Open {module.title.toLowerCase()}
                   </button>
                 )}
               </div>

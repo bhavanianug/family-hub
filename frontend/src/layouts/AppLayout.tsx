@@ -4,12 +4,18 @@ import { ConnectionStatus } from '../components/ConnectionStatus'
 import { useAuth } from '../features/auth/AuthProvider'
 import type { ConnectionState } from '../types/health'
 
-export type AppPage = 'dashboard' | 'calendar' | 'opportunities' | 'group'
+export type AppPage =
+  | 'dashboard'
+  | 'calendar'
+  | 'opportunities'
+  | 'college'
+  | 'group'
 
 const navItems: { id: AppPage; label: string }[] = [
   { id: 'dashboard', label: 'Home' },
   { id: 'calendar', label: 'Calendar' },
   { id: 'opportunities', label: 'Opportunities' },
+  { id: 'college', label: 'College' },
   { id: 'group', label: 'Group' },
 ]
 
