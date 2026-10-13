@@ -40,7 +40,6 @@ export const collegeComingUp: CollegeComingItem[] = [
 ]
 
 export const collegeAid = {
-  status: 'Not started',
   timeline: [
     { when: 'Oct 1', what: 'FAFSA / Alternative App open' },
     { when: 'Oct – Nov', what: 'File' },

@@ -118,15 +118,6 @@ export function CollegePage() {
         {tab === 'aid' && (
           <div className="mt-6 space-y-8" role="tabpanel">
             <div>
-              <p className="text-xs font-bold tracking-wide text-ink-soft uppercase">
-                Status
-              </p>
-              <p className="mt-1 font-display text-xl font-bold text-ink">
-                {collegeAid.status}
-              </p>
-            </div>
-
-            <div>
               <h4 className="text-[11px] font-bold tracking-[0.22em] text-sage uppercase">
                 Timeline
               </h4>
