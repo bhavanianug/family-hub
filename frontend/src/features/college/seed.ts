@@ -93,11 +93,9 @@ export const collegeAid = {
 }
 
 export const collegePlan = {
+  /** Recurring testing rhythm only — one-off visits/fairs live in Coming up. */
   timeline: [
     { when: 'Oct · soph & junior', what: 'PSAT 10 / 11' },
-    { when: 'Oct 14–15', what: 'College visit — Michigan' },
-    { when: 'Nov 5', what: 'College visit — Northwestern' },
-    { when: 'Mar 9', what: 'Postsecondary Fair (confirm date)' },
     {
       when: 'Apr · 9th & 10th',
       what: 'PreACT 9 and 10 Secure',
@@ -112,6 +110,7 @@ export const collegePlan = {
     'SchooLinks parent access: cps.edu/parents → Forgot Password (Aspen email)',
     'Favor depth in activities; use summers (programs, work, volunteer)',
     'AP / Dual Credit / Honors when ready — grades matter most',
+    'One-off visits and fairs are listed under Coming up',
   ],
   resources: [
     {
