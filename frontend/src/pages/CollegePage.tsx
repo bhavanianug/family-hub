@@ -137,6 +137,19 @@ export function CollegePage() {
 
             <div>
               <h4 className="text-[11px] font-bold tracking-[0.22em] text-sage uppercase">
+                Keep in mind
+              </h4>
+              <ul className="mt-3 list-disc space-y-2 pl-5">
+                {collegeAid.reminders.map((line) => (
+                  <li key={line} className="text-sm text-ink-soft sm:text-base">
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-[11px] font-bold tracking-[0.22em] text-sage uppercase">
                 Resources
               </h4>
               <div className="mt-3">
@@ -161,7 +174,7 @@ export function CollegePage() {
               <h4 className="text-[11px] font-bold tracking-[0.22em] text-sage uppercase">
                 Keep in mind
               </h4>
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 list-disc space-y-2 pl-5">
                 {collegePlan.reminders.map((line) => (
                   <li key={line} className="text-sm text-ink-soft sm:text-base">
                     {line}

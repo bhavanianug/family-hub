@@ -49,6 +49,11 @@ export const collegeAid = {
     { when: 'Apr – May 1', what: 'Accept / decline' },
     { when: 'Yearly', what: 'Re-file while in college' },
   ] satisfies TimelineRow[],
+  reminders: [
+    'Student + parent each need a StudentAid.gov account before filing',
+    'Filing is free — don’t pay anyone',
+    'Compare offers on out-of-pocket (grants vs loans), not sticker price',
+  ],
   resources: [
     { label: 'StudentAid.gov', href: 'https://studentaid.gov' },
     { label: 'FAFSA', href: 'https://www.fafsa.gov' },
@@ -73,6 +78,8 @@ export const collegePlan = {
   ] satisfies TimelineRow[],
   reminders: [
     'SchooLinks: cps.edu/parents → Forgot Password (Aspen email)',
+    'Depth in activities beats a long shallow list',
+    'Scholarship red flags: don’t pay to apply; don’t share SSN casually',
   ],
   resources: [
     {
