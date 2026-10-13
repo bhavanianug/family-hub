@@ -13,10 +13,16 @@ In the SQL Editor, ensure these have been applied (in order):
 5. `supabase/migrations/20261016000000_college_why.sql`
 6. `supabase/migrations/20261017000000_college_deadlines.sql`
 
-Auth → URL configuration:
+Auth → URL configuration (required for email confirm / password reset):
 
-- Add your Vercel URL to **Site URL** and **Redirect URLs**  
-  (e.g. `https://your-app.vercel.app` and `https://your-app.vercel.app/**`)
+- **Site URL:** your production Vercel URL (not `http://localhost:3000`)  
+  e.g. `https://your-app.vercel.app`
+- **Redirect URLs:** add both production and local, e.g.  
+  `https://your-app.vercel.app/**`  
+  `http://localhost:5173/**`  
+  `http://127.0.0.1:5173/**`
+
+If Site URL stays on localhost, confirmation emails will send people there.
 
 ## 2. Backend on Render
 

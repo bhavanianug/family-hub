@@ -26,6 +26,15 @@ npx supabase db push
 
 **Authentication → Providers → Email:** enable Email.
 
+**Authentication → URL Configuration:**
+
+| Field | Value |
+| --- | --- |
+| Site URL | Production app URL (e.g. `https://your-app.vercel.app`) — **not** `http://localhost:3000` |
+| Redirect URLs | `https://your-app.vercel.app/**`, `http://localhost:5173/**`, `http://127.0.0.1:5173/**` |
+
+Confirmation links use Site URL unless signup passes `emailRedirectTo` (the app now sends the current origin). The redirect must still be allow-listed above.
+
 For local testing, you can disable **Confirm email** under Auth settings so sign-up logs you in immediately. Re-enable confirmation before sharing the app widely.
 
 ## 4. Copy keys into env files
