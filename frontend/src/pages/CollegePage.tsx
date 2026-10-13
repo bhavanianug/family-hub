@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 
+import { useAuth } from '../features/auth/AuthProvider'
 import {
   collegeAid,
   collegeComingUp,
@@ -8,10 +9,13 @@ import {
   type TimelineRow,
 } from '../features/college/seed'
 import { useCollegeTargets } from '../features/college/useCollegeTargets'
+import { pullCollegeDeadlines, resolveCollegeUrl } from '../lib/api'
 import {
   COLLEGE_BANDS,
+  formatCollegeDate,
   labelCollegeBand,
   type CollegeBand,
+  type CollegeTarget,
 } from '../types/college'
 
 type CollegeTab = 'coming' | 'aid' | 'plan' | 'list'
@@ -20,7 +24,7 @@ const tabs: { id: CollegeTab; label: string }[] = [
   { id: 'coming', label: 'Coming up' },
   { id: 'aid', label: 'Aid' },
   { id: 'plan', label: 'Plan' },
-  { id: 'list', label: 'Colleges' },
+  { id: 'list', label: 'College list' },
 ]
 
 const fieldClass =
@@ -69,26 +73,68 @@ function hostFromUrl(url: string): string {
   }
 }
 
+function DeadlineLines({ item }: { item: CollegeTarget }) {
+  const rows: { label: string; value: string }[] = []
+  const ea = formatCollegeDate(item.deadline_early_action)
+  const ed = formatCollegeDate(item.deadline_early_decision)
+  const rd = formatCollegeDate(item.deadline_regular)
+  if (ea) rows.push({ label: 'EA', value: ea })
+  if (ed) rows.push({ label: 'ED', value: ed })
+  if (rd) rows.push({ label: 'RD', value: rd })
+
+  if (rows.length === 0 && !item.application_timing) {
+    return null
+  }
+
+  return (
+    <div className="mt-2 space-y-1">
+      {rows.length > 0 && (
+        <p className="text-sm text-ink">
+          {rows.map((row, index) => (
+            <span key={row.label}>
+              {index > 0 ? ' · ' : ''}
+              <span className="font-semibold text-ink-soft">{row.label}</span>{' '}
+              {row.value}
+            </span>
+          ))}
+        </p>
+      )}
+      {item.application_timing && (
+        <p className="text-sm text-ink-soft">{item.application_timing}</p>
+      )}
+    </div>
+  )
+}
+
 export function CollegePage() {
   const [tab, setTab] = useState<CollegeTab>('coming')
-  const { items, loading, error, add, remove } = useCollegeTargets()
+  const { session } = useAuth()
+  const { items, loading, error, add, update, remove } = useCollegeTargets()
 
   const [name, setName] = useState('')
   const [band, setBand] = useState<CollegeBand>('target')
   const [sourceUrl, setSourceUrl] = useState('')
+  const [whyThisCollege, setWhyThisCollege] = useState('')
   const [notes, setNotes] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
+  const [formHint, setFormHint] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [findingForm, setFindingForm] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [busyAction, setBusyAction] = useState<'link' | 'deadlines' | null>(
+    null,
+  )
 
   async function handleAdd(event: FormEvent) {
     event.preventDefault()
     setFormError(null)
+    setFormHint(null)
     setSaving(true)
     const result = await add({
       name,
       band,
       source_url: sourceUrl,
+      why_this_college: whyThisCollege,
       notes,
     })
     setSaving(false)
@@ -99,7 +145,32 @@ export function CollegePage() {
     setName('')
     setBand('target')
     setSourceUrl('')
+    setWhyThisCollege('')
     setNotes('')
+  }
+
+  async function findLinkForName(collegeName: string): Promise<string | null> {
+    const token = session?.access_token
+    if (!token) {
+      setFormError('Sign in to search for a college link')
+      return null
+    }
+    const trimmed = collegeName.trim()
+    if (trimmed.length < 2) {
+      setFormError('Enter a college name first')
+      return null
+    }
+    setFormError(null)
+    setFormHint(null)
+    const result = await resolveCollegeUrl(trimmed, token)
+    if (!result.url) {
+      setFormError(
+        result.warnings[0] ?? 'No official admissions link found — paste one',
+      )
+      return null
+    }
+    setFormHint(result.warnings[0] ?? 'Review the link before saving')
+    return result.url
   }
 
   return (
@@ -270,7 +341,19 @@ export function CollegePage() {
                     type="url"
                     value={sourceUrl}
                     onChange={(event) => setSourceUrl(event.target.value)}
-                    placeholder="https://"
+                    placeholder="https:// or Find link"
+                  />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className="text-sm font-semibold text-ink-soft">
+                    Why this college
+                  </span>
+                  <textarea
+                    className={fieldClass}
+                    rows={2}
+                    value={whyThisCollege}
+                    onChange={(event) => setWhyThisCollege(event.target.value)}
+                    placeholder="Programs, fit, location, aid…"
                   />
                 </label>
                 <label className="block sm:col-span-2">
@@ -288,13 +371,38 @@ export function CollegePage() {
                   {formError}
                 </p>
               )}
-              <button
-                type="submit"
-                disabled={saving}
-                className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
-              >
-                {saving ? 'Adding…' : 'Add college'}
-              </button>
+              {formHint && !formError && (
+                <p className="text-sm text-ink-soft">{formHint}</p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
+                >
+                  {saving ? 'Adding…' : 'Add college'}
+                </button>
+                <button
+                  type="button"
+                  disabled={findingForm || !name.trim()}
+                  className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink hover:border-sage disabled:opacity-60"
+                  onClick={async () => {
+                    setFindingForm(true)
+                    try {
+                      const url = await findLinkForName(name)
+                      if (url) setSourceUrl(url)
+                    } catch (err) {
+                      setFormError(
+                        err instanceof Error ? err.message : 'Search failed',
+                      )
+                    } finally {
+                      setFindingForm(false)
+                    }
+                  }}
+                >
+                  {findingForm ? 'Searching…' : 'Find link'}
+                </button>
+              </div>
             </form>
 
             {loading && <p className="text-ink-soft">Loading…</p>}
@@ -305,15 +413,15 @@ export function CollegePage() {
             )}
 
             {!loading && !error && items.length === 0 && (
-              <p className="text-ink-soft">No colleges yet.</p>
+              <p className="text-ink-soft">
+                No colleges yet. Add one above, then use Pull deadlines on that
+                row.
+              </p>
             )}
 
             <ul className="divide-y divide-line border-y border-line">
               {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-start justify-between gap-3 py-4"
-                >
+                <li key={item.id} className="space-y-3 py-4">
                   <div className="min-w-0">
                     <p className="text-xs font-bold tracking-wide text-sage uppercase">
                       {labelCollegeBand(item.band)}
@@ -331,24 +439,117 @@ export function CollegePage() {
                         {hostFromUrl(item.source_url)}
                       </a>
                     )}
+                    <DeadlineLines item={item} />
+                    {item.why_this_college && (
+                      <p className="mt-2 text-sm text-ink">
+                        <span className="font-semibold text-ink-soft">Why: </span>
+                        {item.why_this_college}
+                      </p>
+                    )}
                     {item.notes && (
                       <p className="mt-1 text-sm text-ink-soft">{item.notes}</p>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-coral hover:bg-coral/10"
-                    disabled={busyId === item.id}
-                    onClick={async () => {
-                      if (!confirm(`Delete “${item.name}”?`)) return
-                      setBusyId(item.id)
-                      const result = await remove(item.id)
-                      setBusyId(null)
-                      if (result.error) setFormError(result.error)
-                    }}
-                  >
-                    Delete
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="btn-primary rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-60"
+                      disabled={busyId === item.id}
+                      onClick={async () => {
+                        const token = session?.access_token
+                        if (!token) {
+                          setFormError('Sign in to pull deadlines')
+                          return
+                        }
+                        setBusyId(item.id)
+                        setBusyAction('deadlines')
+                        setFormError(null)
+                        setFormHint(null)
+                        try {
+                          const pulled = await pullCollegeDeadlines(
+                            item.name,
+                            token,
+                            item.source_url,
+                          )
+                          const result = await update(item.id, {
+                            source_url: pulled.source_url ?? item.source_url,
+                            deadline_early_action: pulled.deadline_early_action,
+                            deadline_early_decision:
+                              pulled.deadline_early_decision,
+                            deadline_regular: pulled.deadline_regular,
+                            application_timing: pulled.application_timing,
+                            deadlines_updated_at:
+                              pulled.deadlines_updated_at ??
+                              new Date().toISOString(),
+                          })
+                          if (result.error) {
+                            setFormError(result.error)
+                          } else if (pulled.warnings[0]) {
+                            setFormHint(pulled.warnings[0])
+                          }
+                        } catch (err) {
+                          setFormError(
+                            err instanceof Error
+                              ? err.message
+                              : 'Deadline pull failed',
+                          )
+                        } finally {
+                          setBusyId(null)
+                          setBusyAction(null)
+                        }
+                      }}
+                    >
+                      {busyId === item.id && busyAction === 'deadlines'
+                        ? 'Pulling…'
+                        : 'Pull deadlines'}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-xl border border-line px-4 py-2 text-sm font-bold text-ink hover:border-sage disabled:opacity-60"
+                      disabled={busyId === item.id}
+                      onClick={async () => {
+                        setBusyId(item.id)
+                        setBusyAction('link')
+                        setFormError(null)
+                        try {
+                          const url = await findLinkForName(item.name)
+                          if (url) {
+                            const result = await update(item.id, {
+                              source_url: url,
+                            })
+                            if (result.error) setFormError(result.error)
+                          }
+                        } catch (err) {
+                          setFormError(
+                            err instanceof Error ? err.message : 'Search failed',
+                          )
+                        } finally {
+                          setBusyId(null)
+                          setBusyAction(null)
+                        }
+                      }}
+                    >
+                      {busyId === item.id && busyAction === 'link'
+                        ? 'Searching…'
+                        : item.source_url
+                          ? 'Refresh link'
+                          : 'Find link'}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-xl px-4 py-2 text-sm font-semibold text-coral hover:bg-coral/10 disabled:opacity-60"
+                      disabled={busyId === item.id}
+                      onClick={async () => {
+                        if (!confirm(`Delete “${item.name}”?`)) return
+                        setBusyId(item.id)
+                        const result = await remove(item.id)
+                        setBusyId(null)
+                        if (result.error) setFormError(result.error)
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

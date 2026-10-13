@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import type { CollegeTarget, CollegeTargetInput } from '../../types/college'
+import type {
+  CollegeDeadlineFields,
+  CollegeTarget,
+  CollegeTargetInput,
+} from '../../types/college'
 import { useAuth } from '../auth/AuthProvider'
 import { useGroup } from '../group/useGroup'
 import {
   createCollegeTarget,
   deleteCollegeTarget,
   listCollegeTargets,
+  updateCollegeTarget,
 } from './collegeApi'
 
 export function useCollegeTargets() {
@@ -51,6 +56,25 @@ export function useCollegeTargets() {
     }
   }
 
+  async function update(
+    collegeId: string,
+    patch: Partial<
+      Pick<
+        CollegeTarget,
+        'name' | 'band' | 'source_url' | 'why_this_college' | 'notes'
+      > &
+        CollegeDeadlineFields
+    >,
+  ) {
+    try {
+      await updateCollegeTarget(collegeId, patch)
+      await refresh()
+      return { error: null }
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'Update failed' }
+    }
+  }
+
   async function remove(collegeId: string) {
     try {
       await deleteCollegeTarget(collegeId)
@@ -66,6 +90,7 @@ export function useCollegeTargets() {
     loading: loading || groupLoading,
     error,
     add,
+    update,
     remove,
     refresh,
   }

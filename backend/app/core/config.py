@@ -65,6 +65,8 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-5-nano"
+    # Web search + URL resolve (Responses API). Nano supports web_search; override if needed.
+    openai_web_search_model: str = "gpt-5-nano"
     extract_use_llm: bool = True
 
     @property

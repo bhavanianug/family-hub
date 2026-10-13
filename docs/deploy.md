@@ -9,6 +9,9 @@ In the SQL Editor, ensure these have been applied (in order):
 1. `supabase/migrations/20261010000000_auth_and_core.sql`
 2. `supabase/migrations/20261012000000_opportunity_opens_at.sql`
 3. `supabase/migrations/20261013000000_opportunity_timing_kind.sql`
+4. `supabase/migrations/20261015000000_college_targets.sql`
+5. `supabase/migrations/20261016000000_college_why.sql`
+6. `supabase/migrations/20261017000000_college_deadlines.sql`
 
 Auth → URL configuration:
 
@@ -27,8 +30,9 @@ Auth → URL configuration:
 | `SUPABASE_JWT_SECRET` | Project Settings → API → JWT Secret |
 | `SUPABASE_ANON_KEY` | anon public key |
 | `CORS_ORIGINS` | `https://YOUR_APP.vercel.app` (plain URL; comma-separate if several) |
-| `OPENAI_API_KEY` | optional — URL extract in production |
-| `OPENAI_MODEL` | `gpt-5-nano` |
+| `OPENAI_API_KEY` | optional — URL extract + college Find link |
+| `OPENAI_MODEL` | `gpt-5-nano` (page extract) |
+| `OPENAI_WEB_SEARCH_MODEL` | `gpt-5-nano` (Responses API web search; optional override) |
 
 4. Note the API URL, e.g. `https://family-hub-api.onrender.com`
 
