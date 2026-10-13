@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 
 import { useAuth } from '../features/auth/AuthProvider'
 import {
@@ -19,6 +19,9 @@ import {
 } from '../types/college'
 
 type CollegeTab = 'coming' | 'aid' | 'plan' | 'list'
+type BandFilter = 'all' | CollegeBand
+type ListSort = 'name' | 'deadline'
+type NeedFilter = 'all' | 'missing_deadlines' | 'missing_link'
 
 const tabs: { id: CollegeTab; label: string }[] = [
   { id: 'coming', label: 'Coming up' },
@@ -26,6 +29,38 @@ const tabs: { id: CollegeTab; label: string }[] = [
   { id: 'plan', label: 'Plan' },
   { id: 'list', label: 'College list' },
 ]
+
+const bandFilters: { id: BandFilter; label: string }[] = [
+  { id: 'all', label: 'All' },
+  ...COLLEGE_BANDS.map((id) => ({ id, label: labelCollegeBand(id) })),
+]
+
+const needFilters: { id: NeedFilter; label: string }[] = [
+  { id: 'all', label: 'Any status' },
+  { id: 'missing_deadlines', label: 'Missing deadlines' },
+  { id: 'missing_link', label: 'Missing link' },
+]
+
+function hasDeadline(item: CollegeTarget): boolean {
+  return Boolean(
+    item.deadline_early_action ||
+      item.deadline_early_decision ||
+      item.deadline_regular ||
+      item.application_timing,
+  )
+}
+
+function earliestDeadline(item: CollegeTarget): string | null {
+  const dates = [
+    item.deadline_early_action,
+    item.deadline_early_decision,
+    item.deadline_regular,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.slice(0, 10))
+    .sort()
+  return dates[0] ?? null
+}
 
 const fieldClass =
   'mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2.5 text-ink outline-none transition focus:border-sage focus:ring-2 focus:ring-sage/25'
@@ -111,11 +146,16 @@ export function CollegePage() {
   const { session } = useAuth()
   const { items, loading, error, add, update, remove } = useCollegeTargets()
 
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [band, setBand] = useState<CollegeBand>('target')
   const [sourceUrl, setSourceUrl] = useState('')
   const [whyThisCollege, setWhyThisCollege] = useState('')
   const [notes, setNotes] = useState('')
+  const [deadlineEarlyAction, setDeadlineEarlyAction] = useState('')
+  const [deadlineEarlyDecision, setDeadlineEarlyDecision] = useState('')
+  const [deadlineRegular, setDeadlineRegular] = useState('')
+  const [applicationTiming, setApplicationTiming] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
   const [formHint, setFormHint] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -124,29 +164,97 @@ export function CollegePage() {
   const [busyAction, setBusyAction] = useState<'link' | 'deadlines' | null>(
     null,
   )
+  const [bandFilter, setBandFilter] = useState<BandFilter>('all')
+  const [needFilter, setNeedFilter] = useState<NeedFilter>('all')
+  const [listSort, setListSort] = useState<ListSort>('name')
 
-  async function handleAdd(event: FormEvent) {
-    event.preventDefault()
-    setFormError(null)
-    setFormHint(null)
-    setSaving(true)
-    const result = await add({
-      name,
-      band,
-      source_url: sourceUrl,
-      why_this_college: whyThisCollege,
-      notes,
-    })
-    setSaving(false)
-    if (result.error) {
-      setFormError(result.error)
-      return
-    }
+  function resetForm() {
+    setEditingId(null)
     setName('')
     setBand('target')
     setSourceUrl('')
     setWhyThisCollege('')
     setNotes('')
+    setDeadlineEarlyAction('')
+    setDeadlineEarlyDecision('')
+    setDeadlineRegular('')
+    setApplicationTiming('')
+  }
+
+  function startEdit(item: CollegeTarget) {
+    setEditingId(item.id)
+    setName(item.name)
+    setBand(item.band)
+    setSourceUrl(item.source_url ?? '')
+    setWhyThisCollege(item.why_this_college ?? '')
+    setNotes(item.notes ?? '')
+    setDeadlineEarlyAction(item.deadline_early_action?.slice(0, 10) ?? '')
+    setDeadlineEarlyDecision(item.deadline_early_decision?.slice(0, 10) ?? '')
+    setDeadlineRegular(item.deadline_regular?.slice(0, 10) ?? '')
+    setApplicationTiming(item.application_timing ?? '')
+    setFormError(null)
+    setFormHint(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const visibleItems = useMemo(() => {
+    let next = items
+    if (bandFilter !== 'all') {
+      next = next.filter((item) => item.band === bandFilter)
+    }
+    if (needFilter === 'missing_deadlines') {
+      next = next.filter((item) => !hasDeadline(item))
+    } else if (needFilter === 'missing_link') {
+      next = next.filter((item) => !item.source_url)
+    }
+    const sorted = [...next]
+    if (listSort === 'deadline') {
+      sorted.sort((a, b) => {
+        const aDate = earliestDeadline(a)
+        const bDate = earliestDeadline(b)
+        if (aDate && bDate) return aDate.localeCompare(bDate)
+        if (aDate) return -1
+        if (bDate) return 1
+        return a.name.localeCompare(b.name)
+      })
+    } else {
+      sorted.sort((a, b) => a.name.localeCompare(b.name))
+    }
+    return sorted
+  }, [items, bandFilter, needFilter, listSort])
+
+  async function handleSave(event: FormEvent) {
+    event.preventDefault()
+    setFormError(null)
+    setFormHint(null)
+    setSaving(true)
+
+    const result = editingId
+      ? await update(editingId, {
+          name,
+          band,
+          source_url: sourceUrl,
+          why_this_college: whyThisCollege,
+          notes,
+          deadline_early_action: deadlineEarlyAction || null,
+          deadline_early_decision: deadlineEarlyDecision || null,
+          deadline_regular: deadlineRegular || null,
+          application_timing: applicationTiming || null,
+        })
+      : await add({
+          name,
+          band,
+          source_url: sourceUrl,
+          why_this_college: whyThisCollege,
+          notes,
+        })
+
+    setSaving(false)
+    if (result.error) {
+      setFormError(result.error)
+      return
+    }
+    resetForm()
   }
 
   async function findLinkForName(collegeName: string): Promise<string | null> {
@@ -306,7 +414,10 @@ export function CollegePage() {
 
         {tab === 'list' && (
           <div className="mt-6 space-y-8" role="tabpanel">
-            <form onSubmit={(event) => void handleAdd(event)} className="space-y-3">
+            <form onSubmit={(event) => void handleSave(event)} className="space-y-3">
+              {editingId && (
+                <p className="text-sm font-bold text-sage">Editing college</p>
+              )}
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block sm:col-span-2">
                   <span className="text-sm font-semibold text-ink-soft">College</span>
@@ -365,6 +476,62 @@ export function CollegePage() {
                     placeholder="Optional"
                   />
                 </label>
+                {editingId && (
+                  <>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Early action
+                      </span>
+                      <input
+                        className={fieldClass}
+                        type="date"
+                        value={deadlineEarlyAction}
+                        onChange={(event) =>
+                          setDeadlineEarlyAction(event.target.value)
+                        }
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Early decision
+                      </span>
+                      <input
+                        className={fieldClass}
+                        type="date"
+                        value={deadlineEarlyDecision}
+                        onChange={(event) =>
+                          setDeadlineEarlyDecision(event.target.value)
+                        }
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Regular decision
+                      </span>
+                      <input
+                        className={fieldClass}
+                        type="date"
+                        value={deadlineRegular}
+                        onChange={(event) =>
+                          setDeadlineRegular(event.target.value)
+                        }
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Other timing
+                      </span>
+                      <input
+                        className={fieldClass}
+                        value={applicationTiming}
+                        onChange={(event) =>
+                          setApplicationTiming(event.target.value)
+                        }
+                        placeholder="Rolling, ED II…"
+                      />
+                    </label>
+                  </>
+                )}
               </div>
               {formError && (
                 <p className="text-sm font-semibold text-coral" role="alert">
@@ -380,8 +547,27 @@ export function CollegePage() {
                   disabled={saving}
                   className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
                 >
-                  {saving ? 'Adding…' : 'Add college'}
+                  {saving
+                    ? editingId
+                      ? 'Saving…'
+                      : 'Adding…'
+                    : editingId
+                      ? 'Save changes'
+                      : 'Add college'}
                 </button>
+                {editingId && (
+                  <button
+                    type="button"
+                    className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink hover:border-sage"
+                    onClick={() => {
+                      resetForm()
+                      setFormError(null)
+                      setFormHint(null)
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
                 <button
                   type="button"
                   disabled={findingForm || !name.trim()}
@@ -412,6 +598,58 @@ export function CollegePage() {
               </p>
             )}
 
+            {!loading && items.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {bandFilters.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setBandFilter(item.id)}
+                      className={`filter-chip rounded-lg px-3 py-1.5 text-sm font-semibold ${
+                        bandFilter === item.id
+                          ? 'bg-sage text-foam'
+                          : 'bg-panel text-ink-soft ring-1 ring-line hover:text-ink'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap gap-1.5">
+                    {needFilters.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setNeedFilter(item.id)}
+                        className={`filter-chip rounded-lg px-3 py-1.5 text-sm font-semibold ${
+                          needFilter === item.id
+                            ? 'bg-sage text-foam'
+                            : 'bg-panel text-ink-soft ring-1 ring-line hover:text-ink'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                  <label className="flex items-center gap-2 text-sm text-ink-soft">
+                    <span className="font-semibold whitespace-nowrap">Sort</span>
+                    <select
+                      className="rounded-lg border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-ink"
+                      value={listSort}
+                      onChange={(event) =>
+                        setListSort(event.target.value as ListSort)
+                      }
+                    >
+                      <option value="name">Name</option>
+                      <option value="deadline">Deadline soonest</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            )}
+
             {!loading && !error && items.length === 0 && (
               <p className="text-ink-soft">
                 No colleges yet. Add one above, then use Pull deadlines on that
@@ -419,8 +657,15 @@ export function CollegePage() {
               </p>
             )}
 
+            {!loading &&
+              !error &&
+              items.length > 0 &&
+              visibleItems.length === 0 && (
+                <p className="text-ink-soft">Nothing in this filter.</p>
+              )}
+
             <ul className="divide-y divide-line border-y border-line">
-              {items.map((item) => (
+              {visibleItems.map((item) => (
                 <li key={item.id} className="space-y-3 py-4">
                   <div className="min-w-0">
                     <p className="text-xs font-bold tracking-wide text-sage uppercase">
@@ -451,6 +696,14 @@ export function CollegePage() {
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="rounded-xl border border-line px-4 py-2 text-sm font-bold text-ink hover:border-sage disabled:opacity-60"
+                      disabled={busyId === item.id}
+                      onClick={() => startEdit(item)}
+                    >
+                      Edit
+                    </button>
                     <button
                       type="button"
                       className="btn-primary rounded-xl px-4 py-2 text-sm font-bold disabled:opacity-60"
@@ -541,6 +794,7 @@ export function CollegePage() {
                       disabled={busyId === item.id}
                       onClick={async () => {
                         if (!confirm(`Delete “${item.name}”?`)) return
+                        if (editingId === item.id) resetForm()
                         setBusyId(item.id)
                         const result = await remove(item.id)
                         setBusyId(null)
