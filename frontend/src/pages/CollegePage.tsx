@@ -63,10 +63,6 @@ export function CollegePage() {
         <h2 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
           College
         </h2>
-        <p className="mt-2 max-w-xl text-sm text-ink-soft sm:text-base">
-          Coming up first — then Aid and Plan, each with its own timeline and
-          resources.
-        </p>
       </div>
 
       <section>
