@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useRef, useState, type FormEvent } from 'react'
 
 import { useAuth } from '../features/auth/AuthProvider'
 import {
@@ -146,6 +146,7 @@ export function CollegePage() {
   const { session } = useAuth()
   const { items, loading, error, add, update, remove } = useCollegeTargets()
 
+  const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [band, setBand] = useState<CollegeBand>('target')
@@ -167,8 +168,10 @@ export function CollegePage() {
   const [bandFilter, setBandFilter] = useState<BandFilter>('all')
   const [needFilter, setNeedFilter] = useState<NeedFilter>('all')
   const [listSort, setListSort] = useState<ListSort>('name')
+  const formRef = useRef<HTMLElement>(null)
 
   function resetForm() {
+    setShowForm(false)
     setEditingId(null)
     setName('')
     setBand('target')
@@ -179,9 +182,20 @@ export function CollegePage() {
     setDeadlineEarlyDecision('')
     setDeadlineRegular('')
     setApplicationTiming('')
+    setFormError(null)
+    setFormHint(null)
+  }
+
+  function openAddForm() {
+    resetForm()
+    setShowForm(true)
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   function startEdit(item: CollegeTarget) {
+    setShowForm(true)
     setEditingId(item.id)
     setName(item.name)
     setBand(item.band)
@@ -194,7 +208,9 @@ export function CollegePage() {
     setApplicationTiming(item.application_timing ?? '')
     setFormError(null)
     setFormHint(null)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   const visibleItems = useMemo(() => {
@@ -254,6 +270,10 @@ export function CollegePage() {
       setFormError(result.error)
       return
     }
+    resetForm()
+  }
+
+  function closeForm() {
     resetForm()
   }
 
@@ -413,189 +433,30 @@ export function CollegePage() {
         )}
 
         {tab === 'list' && (
-          <div className="mt-6 space-y-8" role="tabpanel">
-            <form onSubmit={(event) => void handleSave(event)} className="space-y-3">
-              {editingId && (
-                <p className="text-sm font-bold text-sage">Editing college</p>
-              )}
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="block sm:col-span-2">
-                  <span className="text-sm font-semibold text-ink-soft">College</span>
-                  <input
-                    className={fieldClass}
-                    required
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder="School name"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-sm font-semibold text-ink-soft">Band</span>
-                  <select
-                    className={fieldClass}
-                    value={band}
-                    onChange={(event) =>
-                      setBand(event.target.value as CollegeBand)
-                    }
-                  >
-                    {COLLEGE_BANDS.map((value) => (
-                      <option key={value} value={value}>
-                        {labelCollegeBand(value)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="text-sm font-semibold text-ink-soft">Link</span>
-                  <input
-                    className={fieldClass}
-                    type="url"
-                    value={sourceUrl}
-                    onChange={(event) => setSourceUrl(event.target.value)}
-                    placeholder="https:// or Find link"
-                  />
-                </label>
-                <label className="block sm:col-span-2">
-                  <span className="text-sm font-semibold text-ink-soft">
-                    Why this college
-                  </span>
-                  <textarea
-                    className={fieldClass}
-                    rows={2}
-                    value={whyThisCollege}
-                    onChange={(event) => setWhyThisCollege(event.target.value)}
-                    placeholder="Programs, fit, location, aid…"
-                  />
-                </label>
-                <label className="block sm:col-span-2">
-                  <span className="text-sm font-semibold text-ink-soft">Notes</span>
-                  <input
-                    className={fieldClass}
-                    value={notes}
-                    onChange={(event) => setNotes(event.target.value)}
-                    placeholder="Optional"
-                  />
-                </label>
-                {editingId && (
-                  <>
-                    <label className="block">
-                      <span className="text-sm font-semibold text-ink-soft">
-                        Early action
-                      </span>
-                      <input
-                        className={fieldClass}
-                        type="date"
-                        value={deadlineEarlyAction}
-                        onChange={(event) =>
-                          setDeadlineEarlyAction(event.target.value)
-                        }
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm font-semibold text-ink-soft">
-                        Early decision
-                      </span>
-                      <input
-                        className={fieldClass}
-                        type="date"
-                        value={deadlineEarlyDecision}
-                        onChange={(event) =>
-                          setDeadlineEarlyDecision(event.target.value)
-                        }
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm font-semibold text-ink-soft">
-                        Regular decision
-                      </span>
-                      <input
-                        className={fieldClass}
-                        type="date"
-                        value={deadlineRegular}
-                        onChange={(event) =>
-                          setDeadlineRegular(event.target.value)
-                        }
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm font-semibold text-ink-soft">
-                        Other timing
-                      </span>
-                      <input
-                        className={fieldClass}
-                        value={applicationTiming}
-                        onChange={(event) =>
-                          setApplicationTiming(event.target.value)
-                        }
-                        placeholder="Rolling, ED II…"
-                      />
-                    </label>
-                  </>
-                )}
-              </div>
-              {formError && (
-                <p className="text-sm font-semibold text-coral" role="alert">
-                  {formError}
-                </p>
-              )}
-              {formHint && !formError && (
-                <p className="text-sm text-ink-soft">{formHint}</p>
-              )}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
-                >
-                  {saving
-                    ? editingId
-                      ? 'Saving…'
-                      : 'Adding…'
-                    : editingId
-                      ? 'Save changes'
-                      : 'Add college'}
-                </button>
-                {editingId && (
-                  <button
-                    type="button"
-                    className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink hover:border-sage"
-                    onClick={() => {
-                      resetForm()
-                      setFormError(null)
-                      setFormHint(null)
-                    }}
-                  >
-                    Cancel
-                  </button>
-                )}
-                <button
-                  type="button"
-                  disabled={findingForm || !name.trim()}
-                  className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink hover:border-sage disabled:opacity-60"
-                  onClick={async () => {
-                    setFindingForm(true)
-                    try {
-                      const url = await findLinkForName(name)
-                      if (url) setSourceUrl(url)
-                    } catch (err) {
-                      setFormError(
-                        err instanceof Error ? err.message : 'Search failed',
-                      )
-                    } finally {
-                      setFindingForm(false)
-                    }
-                  }}
-                >
-                  {findingForm ? 'Searching…' : 'Find link'}
-                </button>
-              </div>
-            </form>
+          <div className="mt-6 space-y-6" role="tabpanel">
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={openAddForm}
+                className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold"
+              >
+                Add college
+              </button>
+            </div>
 
             {loading && <p className="text-ink-soft">Loading…</p>}
             {error && (
               <p className="font-semibold text-coral" role="alert">
                 {error}
               </p>
+            )}
+            {formError && !showForm && !editingId && (
+              <p className="text-sm font-semibold text-coral" role="alert">
+                {formError}
+              </p>
+            )}
+            {formHint && !formError && !showForm && !editingId && (
+              <p className="text-sm text-ink-soft">{formHint}</p>
             )}
 
             {!loading && items.length > 0 && (
@@ -650,9 +511,202 @@ export function CollegePage() {
               </div>
             )}
 
-            {!loading && !error && items.length === 0 && (
+            {(showForm || editingId) && (
+              <section
+                ref={formRef}
+                className="surface-panel animate-pop-in rounded-2xl p-5 sm:p-7"
+              >
+                <h3 className="font-display text-xl font-bold text-ink">
+                  {editingId ? 'Edit college' : 'New college'}
+                </h3>
+                <form
+                  onSubmit={(event) => void handleSave(event)}
+                  className="mt-5 space-y-3"
+                >
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="block sm:col-span-2">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        College
+                      </span>
+                      <input
+                        className={fieldClass}
+                        required
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        placeholder="School name"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Band
+                      </span>
+                      <select
+                        className={fieldClass}
+                        value={band}
+                        onChange={(event) =>
+                          setBand(event.target.value as CollegeBand)
+                        }
+                      >
+                        {COLLEGE_BANDS.map((value) => (
+                          <option key={value} value={value}>
+                            {labelCollegeBand(value)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Link
+                      </span>
+                      <input
+                        className={fieldClass}
+                        type="url"
+                        value={sourceUrl}
+                        onChange={(event) => setSourceUrl(event.target.value)}
+                        placeholder="https:// or Find link"
+                      />
+                    </label>
+                    <label className="block sm:col-span-2">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Why this college
+                      </span>
+                      <textarea
+                        className={fieldClass}
+                        rows={2}
+                        value={whyThisCollege}
+                        onChange={(event) =>
+                          setWhyThisCollege(event.target.value)
+                        }
+                        placeholder="Programs, fit, location, aid…"
+                      />
+                    </label>
+                    <label className="block sm:col-span-2">
+                      <span className="text-sm font-semibold text-ink-soft">
+                        Notes
+                      </span>
+                      <input
+                        className={fieldClass}
+                        value={notes}
+                        onChange={(event) => setNotes(event.target.value)}
+                        placeholder="Optional"
+                      />
+                    </label>
+                    {editingId && (
+                      <>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-ink-soft">
+                            Early action
+                          </span>
+                          <input
+                            className={fieldClass}
+                            type="date"
+                            value={deadlineEarlyAction}
+                            onChange={(event) =>
+                              setDeadlineEarlyAction(event.target.value)
+                            }
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-ink-soft">
+                            Early decision
+                          </span>
+                          <input
+                            className={fieldClass}
+                            type="date"
+                            value={deadlineEarlyDecision}
+                            onChange={(event) =>
+                              setDeadlineEarlyDecision(event.target.value)
+                            }
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-ink-soft">
+                            Regular decision
+                          </span>
+                          <input
+                            className={fieldClass}
+                            type="date"
+                            value={deadlineRegular}
+                            onChange={(event) =>
+                              setDeadlineRegular(event.target.value)
+                            }
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-ink-soft">
+                            Other timing
+                          </span>
+                          <input
+                            className={fieldClass}
+                            value={applicationTiming}
+                            onChange={(event) =>
+                              setApplicationTiming(event.target.value)
+                            }
+                            placeholder="Rolling, ED II…"
+                          />
+                        </label>
+                      </>
+                    )}
+                  </div>
+                  {formError && (
+                    <p className="text-sm font-semibold text-coral" role="alert">
+                      {formError}
+                    </p>
+                  )}
+                  {formHint && !formError && (
+                    <p className="text-sm text-ink-soft">{formHint}</p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
+                    >
+                      {saving
+                        ? editingId
+                          ? 'Saving…'
+                          : 'Adding…'
+                        : editingId
+                          ? 'Save changes'
+                          : 'Save college'}
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink hover:border-sage"
+                      onClick={closeForm}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={findingForm || !name.trim()}
+                      className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink hover:border-sage disabled:opacity-60"
+                      onClick={async () => {
+                        setFindingForm(true)
+                        try {
+                          const url = await findLinkForName(name)
+                          if (url) setSourceUrl(url)
+                        } catch (err) {
+                          setFormError(
+                            err instanceof Error
+                              ? err.message
+                              : 'Search failed',
+                          )
+                        } finally {
+                          setFindingForm(false)
+                        }
+                      }}
+                    >
+                      {findingForm ? 'Searching…' : 'Find link'}
+                    </button>
+                  </div>
+                </form>
+              </section>
+            )}
+
+            {!loading && !error && items.length === 0 && !showForm && (
               <p className="text-ink-soft">
-                No colleges yet. Add one above, then use Pull deadlines on that
+                No colleges yet. Use Add college, then Pull deadlines on that
                 row.
               </p>
             )}
