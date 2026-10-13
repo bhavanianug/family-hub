@@ -84,3 +84,12 @@ export type OpportunityFilter =
   | 'in_progress'
   | 'submitted'
   | 'past'
+
+export const OPPORTUNITY_SORTS = [
+  'deadline',
+  'opens',
+  'recent',
+  'title',
+] as const
+
+export type OpportunitySort = (typeof OPPORTUNITY_SORTS)[number]

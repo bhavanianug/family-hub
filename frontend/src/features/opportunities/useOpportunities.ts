@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type {
   OpportunityFilter,
   OpportunityInput,
+  OpportunitySort,
   OpportunityWithTracking,
   TrackingStatus,
 } from '../../types/opportunity'
@@ -19,6 +20,7 @@ import {
 } from './opportunityApi'
 
 const DAY_MS = 24 * 60 * 60 * 1000
+const FAR_FUTURE = Number.MAX_SAFE_INTEGER
 
 function isPast(deadline: string | null): boolean {
   if (!deadline) return false
@@ -32,12 +34,51 @@ function isDueSoon(deadline: string | null): boolean {
   return t >= now && t <= now + 14 * DAY_MS
 }
 
+/** Upcoming dates first; past next; missing last. */
+function dateSortKey(iso: string | null | undefined, now: number): number {
+  if (!iso) return FAR_FUTURE
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return FAR_FUTURE
+  if (t < now) return FAR_FUTURE / 2 + t
+  return t
+}
+
+function compareOpportunities(
+  a: OpportunityWithTracking,
+  b: OpportunityWithTracking,
+  sort: OpportunitySort,
+): number {
+  const now = Date.now()
+
+  switch (sort) {
+    case 'opens': {
+      const diff = dateSortKey(a.opens_at, now) - dateSortKey(b.opens_at, now)
+      if (diff !== 0) return diff
+      return dateSortKey(a.deadline_at, now) - dateSortKey(b.deadline_at, now)
+    }
+    case 'recent': {
+      const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+      const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+      return bCreated - aCreated
+    }
+    case 'title':
+      return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+    case 'deadline':
+    default: {
+      const diff = dateSortKey(a.deadline_at, now) - dateSortKey(b.deadline_at, now)
+      if (diff !== 0) return diff
+      return dateSortKey(a.opens_at, now) - dateSortKey(b.opens_at, now)
+    }
+  }
+}
+
 export function useOpportunities() {
   const { user } = useAuth()
   const { group, loading: groupLoading } = useGroup()
   const { person, loading: personLoading } = useCurrentPerson()
   const [items, setItems] = useState<OpportunityWithTracking[]>([])
   const [filter, setFilter] = useState<OpportunityFilter>('all')
+  const [sort, setSort] = useState<OpportunitySort>('deadline')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -64,8 +105,8 @@ export function useOpportunities() {
     void refresh()
   }, [refresh])
 
-  const filtered = useMemo(() => {
-    return items.filter((item) => {
+  const visible = useMemo(() => {
+    const filtered = items.filter((item) => {
       const status = item.tracking?.status
       switch (filter) {
         case 'summer':
@@ -86,7 +127,9 @@ export function useOpportunities() {
           return true
       }
     })
-  }, [items, filter])
+
+    return [...filtered].sort((a, b) => compareOpportunities(a, b, sort))
+  }, [items, filter, sort])
 
   async function add(input: OpportunityInput | OpportunityInput[]) {
     if (!group || !person || !user) {
@@ -139,10 +182,12 @@ export function useOpportunities() {
   }
 
   return {
-    items: filtered,
+    items: visible,
     allCount: items.length,
     filter,
     setFilter,
+    sort,
+    setSort,
     loading: loading || groupLoading || personLoading,
     error,
     refresh,

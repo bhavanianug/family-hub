@@ -4,6 +4,7 @@ import { OpportunityForm } from '../components/OpportunityForm'
 import { SourceScanPanel } from '../components/SourceScanPanel'
 import {
   formatDeadline,
+  labelSort,
   labelStatus,
   labelTimingKind,
   labelType,
@@ -11,9 +12,11 @@ import {
 import { useOpportunities } from '../features/opportunities/useOpportunities'
 import type {
   OpportunityFilter,
+  OpportunitySort,
   OpportunityWithTracking,
   TrackingStatus,
 } from '../types/opportunity'
+import { OPPORTUNITY_SORTS } from '../types/opportunity'
 
 const filters: { id: OpportunityFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -41,6 +44,8 @@ export function OpportunitiesPage() {
     allCount,
     filter,
     setFilter,
+    sort,
+    setSort,
     loading,
     error,
     add,
@@ -84,21 +89,37 @@ export function OpportunitiesPage() {
 
       {import.meta.env.DEV && <SourceScanPanel onAddMany={add} />}
 
-      <div className="flex flex-wrap gap-1.5">
-        {filters.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setFilter(item.id)}
-            className={`filter-chip rounded-lg px-3 py-1.5 text-sm font-semibold ${
-              filter === item.id
-                ? 'bg-sage text-foam'
-                : 'bg-panel text-ink-soft ring-1 ring-line hover:text-ink'
-            }`}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-1.5">
+          {filters.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setFilter(item.id)}
+              className={`filter-chip rounded-lg px-3 py-1.5 text-sm font-semibold ${
+                filter === item.id
+                  ? 'bg-sage text-foam'
+                  : 'bg-panel text-ink-soft ring-1 ring-line hover:text-ink'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <label className="flex items-center gap-2 text-sm text-ink-soft">
+          <span className="font-semibold whitespace-nowrap">Sort</span>
+          <select
+            className="rounded-lg border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-ink"
+            value={sort}
+            onChange={(event) => setSort(event.target.value as OpportunitySort)}
           >
-            {item.label}
-          </button>
-        ))}
+            {OPPORTUNITY_SORTS.map((value) => (
+              <option key={value} value={value}>
+                {labelSort(value)}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {(showForm || editing) && (

@@ -1,4 +1,5 @@
 import type {
+  OpportunitySort,
   OpportunityType,
   TimingKind,
   TrackingStatus,
@@ -43,4 +44,18 @@ export function labelTimingKind(kind: TimingKind | null | undefined): string {
 
 export function labelStatus(status: TrackingStatus): string {
   return status.replaceAll('_', ' ')
+}
+
+export function labelSort(sort: OpportunitySort): string {
+  switch (sort) {
+    case 'opens':
+      return 'Opens soonest'
+    case 'recent':
+      return 'Recently added'
+    case 'title':
+      return 'Title A–Z'
+    case 'deadline':
+    default:
+      return 'Deadline soonest'
+  }
 }
