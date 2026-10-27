@@ -47,12 +47,25 @@ export type Opportunity = {
   created_at: string
 }
 
+/** One checklist / Q&A row on an application record. */
+export type ApplicationItem = {
+  id: string
+  question: string
+  answer: string
+  done: boolean
+}
+
 export type OpportunityTracking = {
   id: string
   opportunity_id: string
   person_id: string
   status: TrackingStatus
   notes: string | null
+  apply_url: string | null
+  application_doc_url: string | null
+  submitted_at: string | null
+  confirmation_code: string | null
+  application_items: ApplicationItem[]
 }
 
 export type OpportunityWithTracking = Opportunity & {
@@ -72,6 +85,11 @@ export type OpportunityInput = {
   eligibility?: string
   status?: TrackingStatus
   notes?: string
+  apply_url?: string
+  application_doc_url?: string
+  submitted_at?: string | null
+  confirmation_code?: string
+  application_items?: ApplicationItem[]
 }
 
 export type OpportunityFilter =

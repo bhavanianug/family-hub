@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { OpportunityForm } from '../components/OpportunityForm'
 import { SourceScanPanel } from '../components/SourceScanPanel'
+import { applicationItemsProgress } from '../features/opportunities/applicationItems'
 import {
   formatDeadline,
   labelSort,
@@ -40,9 +41,13 @@ function hostFromUrl(url: string): string {
 
 type OpportunitiesPageProps = {
   onFindMore?: () => void
+  onOpenApplication?: (opportunityId: string) => void
 }
 
-export function OpportunitiesPage({ onFindMore }: OpportunitiesPageProps) {
+export function OpportunitiesPage({
+  onFindMore,
+  onOpenApplication,
+}: OpportunitiesPageProps) {
   const {
     items,
     allCount,
@@ -253,6 +258,26 @@ export function OpportunitiesPage({ onFindMore }: OpportunitiesPageProps) {
                   {item.tracking?.notes && (
                     <p className="mt-2 text-sm text-ink-soft">{item.tracking.notes}</p>
                   )}
+                  {(() => {
+                    const progress = applicationItemsProgress(
+                      item.tracking?.application_items ?? [],
+                    )
+                    if (progress.total === 0 && !item.tracking?.submitted_at) {
+                      return null
+                    }
+                    return (
+                      <p className="mt-2 text-sm text-ink-soft">
+                        {[
+                          progress.total > 0 &&
+                            `Application ${progress.done}/${progress.total} done`,
+                          item.tracking?.submitted_at &&
+                            `Submitted ${formatDeadline(item.tracking.submitted_at)}`,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                    )
+                  })()}
                 </div>
 
                 <div className="flex flex-col items-stretch gap-2 sm:items-end">
@@ -287,7 +312,16 @@ export function OpportunitiesPage({ onFindMore }: OpportunitiesPageProps) {
                       ))}
                     </select>
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap justify-end gap-2">
+                    {onOpenApplication && (
+                      <button
+                        type="button"
+                        className="rounded-lg px-3 py-2 text-sm font-semibold text-sage hover:bg-sage/15"
+                        onClick={() => onOpenApplication(item.id)}
+                      >
+                        Application
+                      </button>
+                    )}
                     <button
                       type="button"
                       className="rounded-lg px-3 py-2 text-sm font-semibold text-sage-deep hover:bg-sage/15"

@@ -8,6 +8,7 @@ export type AppPage =
   | 'dashboard'
   | 'calendar'
   | 'opportunities'
+  | 'application'
   | 'discover'
   | 'college'
   | 'group'
@@ -78,7 +79,9 @@ export function AppLayout({
           aria-label="Primary"
         >
           {navItems.map((item) => {
-            const active = page === item.id
+            const active =
+              page === item.id ||
+              (page === 'application' && item.id === 'opportunities')
             return (
               <button
                 key={item.id}

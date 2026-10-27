@@ -12,6 +12,7 @@ In the SQL Editor, ensure these have been applied (in order):
 4. `supabase/migrations/20261015000000_college_targets.sql`
 5. `supabase/migrations/20261016000000_college_why.sql`
 6. `supabase/migrations/20261017000000_college_deadlines.sql`
+7. `supabase/migrations/20261027000000_application_record.sql`
 
 Auth → URL configuration (required for email confirm / password reset):
 
