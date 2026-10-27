@@ -38,7 +38,11 @@ function hostFromUrl(url: string): string {
   }
 }
 
-export function OpportunitiesPage() {
+type OpportunitiesPageProps = {
+  onFindMore?: () => void
+}
+
+export function OpportunitiesPage({ onFindMore }: OpportunitiesPageProps) {
   const {
     items,
     allCount,
@@ -70,10 +74,18 @@ export function OpportunitiesPage() {
             Opportunities
           </h2>
           <p className="mt-2 max-w-xl text-sm text-ink-soft sm:text-base">
-            {import.meta.env.DEV
-              ? 'Scan curated Chicago STEM pages, paste a URL, or add by hand.'
-              : 'Paste a URL or add by hand. Track status and deadlines here.'}
+            Your saved programs live here. Paste a URL, add by hand
+            {onFindMore ? ', or discover candidates to add' : ''}.
           </p>
+          {onFindMore && (
+            <button
+              type="button"
+              onClick={onFindMore}
+              className="mt-3 text-sm font-bold text-sage hover:text-ink"
+            >
+              Open Discover →
+            </button>
+          )}
         </div>
         <button
           type="button"

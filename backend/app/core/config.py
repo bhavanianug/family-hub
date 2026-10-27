@@ -64,9 +64,10 @@ class Settings(BaseSettings):
     supabase_service_role_key: str | None = None
 
     openai_api_key: str | None = None
+    perplexity_api_key: str | None = None
     openai_model: str = "gpt-5-nano"
-    # Web search + URL resolve (Responses API). Nano supports web_search; override if needed.
-    openai_web_search_model: str = "gpt-5-nano"
+    # Web search + URL resolve (Responses API). Mini is much faster than nano for search.
+    openai_web_search_model: str = "gpt-4o-mini"
     extract_use_llm: bool = True
 
     @property

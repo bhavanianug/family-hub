@@ -43,3 +43,26 @@ class ScanResponse(BaseModel):
     proposals: list[ScanProposal]
     errors: list[ScanSourceError] = Field(default_factory=list)
     llm_used: bool = False
+
+
+class DiscoverPocRequest(BaseModel):
+    query: str | None = Field(
+        default=None,
+        description="Optional search query; uses a Chicago teen STEM default when omitted",
+        max_length=400,
+    )
+    engine: str = Field(
+        default="both",
+        description="openai, perplexity, or both",
+    )
+
+
+class DiscoverEngineResult(ScanResponse):
+    engine: str
+    candidate_urls: list[str] = Field(default_factory=list)
+    summary: str | None = None
+
+
+class DiscoverPocResponse(BaseModel):
+    query: str
+    engines: list[DiscoverEngineResult] = Field(default_factory=list)

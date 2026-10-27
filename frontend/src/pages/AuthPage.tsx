@@ -59,11 +59,13 @@ VITE_SUPABASE_ANON_KEY=your-anon-key`}
     }
 
     if (mode === 'sign-up') {
-      setInfo(
-        inviteCode.trim()
-          ? 'Account created and joined the group. If email confirmation is enabled, check your inbox before signing in.'
-          : 'Account created with a new group. Share your invite code so others can join the calendar. If email confirmation is enabled, check your inbox.',
-      )
+      if ('needsEmailConfirmation' in result && result.needsEmailConfirmation) {
+        setInfo(
+          'Check your email to confirm your account, then come back here to sign in.',
+        )
+        setMode('sign-in')
+      }
+      // If a session was created, App routes into the hub — no banner needed.
     }
   }
 

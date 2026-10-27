@@ -144,6 +144,58 @@ export async function scanCuratedSources(
   return response.json() as Promise<ScanResponse>
 }
 
+export type DiscoverEngine = 'openai' | 'perplexity' | 'both'
+
+export type DiscoverEngineResult = ScanResponse & {
+  engine: string
+  candidate_urls: string[]
+  summary: string | null
+}
+
+export type DiscoverPocResponse = {
+  query: string
+  engines: DiscoverEngineResult[]
+}
+
+export async function discoverOpportunitiesPoc(
+  accessToken: string,
+  query?: string,
+  engine: DiscoverEngine = 'both',
+): Promise<DiscoverPocResponse> {
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), 50_000)
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/intake/discover-poc`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        ...(query?.trim() ? { query: query.trim() } : {}),
+        engine,
+      }),
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      throw new Error(
+        await readErrorDetail(
+          response,
+          `Discover POC failed (${response.status})`,
+        ),
+      )
+    }
+    return response.json() as Promise<DiscoverPocResponse>
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('Search timed out after 50s — try again')
+    }
+    throw err
+  } finally {
+    window.clearTimeout(timer)
+  }
+}
+
 export type CollegeResolveResult = {
   college_name: string
   url: string | null

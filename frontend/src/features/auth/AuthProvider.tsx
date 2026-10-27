@@ -21,7 +21,7 @@ type AuthContextValue = {
     password: string,
     displayName: string,
     inviteCode?: string,
-  ) => Promise<{ error: string | null }>
+  ) => Promise<{ error: string | null; needsEmailConfirmation?: boolean }>
   signOut: () => Promise<void>
 }
 
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async signUp(email, password, displayName, inviteCode) {
         const trimmedInvite = inviteCode?.trim()
-        const { error } = await getSupabase().auth.signUp({
+        const { data, error } = await getSupabase().auth.signUp({
           email,
           password,
           options: {
@@ -91,7 +91,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             },
           },
         })
-        return { error: error?.message ?? null }
+        if (error) {
+          return { error: error.message }
+        }
+        // No session ⇒ confirm-email is on; user must verify before signing in.
+        return {
+          error: null,
+          needsEmailConfirmation: !data.session,
+        }
       },
       async signOut() {
         await getSupabase().auth.signOut()

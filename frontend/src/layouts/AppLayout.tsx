@@ -8,12 +8,14 @@ export type AppPage =
   | 'dashboard'
   | 'calendar'
   | 'opportunities'
+  | 'discover'
   | 'college'
   | 'group'
 
 const navItems: { id: AppPage; label: string }[] = [
   { id: 'dashboard', label: 'Home' },
   { id: 'calendar', label: 'Calendar' },
+  { id: 'discover', label: 'Discover' },
   { id: 'opportunities', label: 'Opportunities' },
   { id: 'college', label: 'College' },
   { id: 'group', label: 'Group' },
