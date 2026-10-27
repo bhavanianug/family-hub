@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   applicationItemsProgress,
@@ -32,6 +32,8 @@ const questionClass =
 const answerClass =
   'mt-3 w-full min-h-40 resize-y rounded-xl border border-line bg-foam/40 px-4 py-3 text-base leading-relaxed text-ink outline-none transition placeholder:text-ink-soft/60 focus:border-sage focus:ring-2 focus:ring-sage/20 sm:min-h-52'
 
+const AUTOSAVE_MS = 5000
+
 type ApplicationPageProps = {
   opportunityId: string
   onBack: () => void
@@ -44,6 +46,7 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
   const [item, setItem] = useState<OpportunityWithTracking | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [dirty, setDirty] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
 
@@ -55,8 +58,89 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
   const [notes, setNotes] = useState('')
   const [sections, setSections] = useState<ApplicationItem[]>([])
 
+  const readyRef = useRef(false)
+  const dirtyRef = useRef(false)
+  const savingRef = useRef(false)
+  const draftRef = useRef({
+    status: 'saved' as TrackingStatus,
+    applyUrl: '',
+    docUrl: '',
+    submittedAt: '',
+    confirmation: '',
+    notes: '',
+    sections: [] as ApplicationItem[],
+  })
+  const itemIdRef = useRef<string | null>(null)
+  const personIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    draftRef.current = {
+      status,
+      applyUrl,
+      docUrl,
+      submittedAt,
+      confirmation,
+      notes,
+      sections,
+    }
+  }, [status, applyUrl, docUrl, submittedAt, confirmation, notes, sections])
+
+  useEffect(() => {
+    itemIdRef.current = item?.id ?? null
+  }, [item])
+
+  useEffect(() => {
+    personIdRef.current = person?.id ?? null
+  }, [person])
+
+  function markDirty() {
+    if (!readyRef.current) return
+    dirtyRef.current = true
+    setDirty(true)
+    setInfo('Unsaved changes…')
+  }
+
+  async function persist(reason: 'auto' | 'manual' | 'flush' = 'auto') {
+    const opportunityIdToSave = itemIdRef.current
+    const personIdToSave = personIdRef.current
+    if (!opportunityIdToSave || !personIdToSave) return false
+    if (savingRef.current) return false
+
+    savingRef.current = true
+    setSaving(true)
+    if (reason !== 'flush') {
+      setError(null)
+      setInfo('Saving…')
+    }
+
+    const draft = draftRef.current
+    try {
+      await saveApplicationRecord(opportunityIdToSave, personIdToSave, {
+        status: draft.status,
+        apply_url: draft.applyUrl,
+        application_doc_url: draft.docUrl,
+        submitted_at: deadlineToIso(draft.submittedAt),
+        confirmation_code: draft.confirmation,
+        application_items: draft.sections,
+        notes: draft.notes,
+      })
+      dirtyRef.current = false
+      setDirty(false)
+      setInfo(reason === 'auto' ? 'Saved automatically' : 'Saved')
+      return true
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed')
+      setInfo(null)
+      return false
+    } finally {
+      savingRef.current = false
+      setSaving(false)
+    }
+  }
+
   useEffect(() => {
     let cancelled = false
+    readyRef.current = false
 
     async function load() {
       if (!group || !person) {
@@ -65,6 +149,8 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
       }
       setLoading(true)
       setError(null)
+      setDirty(false)
+      dirtyRef.current = false
       try {
         const rows = await listOpportunities(group.id, person.id)
         const found = rows.find((row) => row.id === opportunityId) ?? null
@@ -84,25 +170,54 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
         setNotes(tracking?.notes ?? '')
         const items = tracking?.application_items ?? []
         setSections(items.length > 0 ? items : [newApplicationItem()])
+        setInfo(null)
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Failed to load application')
         }
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          // Allow dirty marking after state has settled.
+          queueMicrotask(() => {
+            if (!cancelled) readyRef.current = true
+          })
+        }
       }
     }
 
     void load()
     return () => {
       cancelled = true
+      readyRef.current = false
     }
   }, [group, person, groupLoading, personLoading, opportunityId])
+
+  // Debounced autosave while editing.
+  useEffect(() => {
+    if (!dirty || !readyRef.current) return
+    const timer = window.setTimeout(() => {
+      void persist('auto')
+    }, AUTOSAVE_MS)
+    return () => window.clearTimeout(timer)
+  }, [dirty, status, applyUrl, docUrl, submittedAt, confirmation, notes, sections])
+
+  // Flush when tab hides (switch apps / close).
+  useEffect(() => {
+    function onVisibility() {
+      if (document.visibilityState === 'hidden' && dirtyRef.current) {
+        void persist('flush')
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
 
   function updateSection(id: string, patch: Partial<ApplicationItem>) {
     setSections((prev) =>
       prev.map((section) => (section.id === id ? { ...section, ...patch } : section)),
     )
+    markDirty()
   }
 
   function removeSection(id: string) {
@@ -110,42 +225,22 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
       const next = prev.filter((section) => section.id !== id)
       return next.length > 0 ? next : [newApplicationItem()]
     })
+    markDirty()
   }
 
-  async function handleSave() {
-    if (!person || !item) return
-    setSaving(true)
-    setError(null)
-    setInfo(null)
-    try {
-      await saveApplicationRecord(item.id, person.id, {
-        status,
-        apply_url: applyUrl,
-        application_doc_url: docUrl,
-        submitted_at: deadlineToIso(submittedAt),
-        confirmation_code: confirmation,
-        application_items: sections,
-        notes,
-      })
-      setInfo('Saved')
-      const rows = await listOpportunities(group!.id, person.id)
-      const found = rows.find((row) => row.id === opportunityId)
-      if (found?.tracking) {
-        setSections(
-          found.tracking.application_items.length > 0
-            ? found.tracking.application_items
-            : [newApplicationItem()],
-        )
-        setSubmittedAt(deadlineInputValue(found.tracking.submitted_at))
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Save failed')
-    } finally {
-      setSaving(false)
+  async function handleBack() {
+    if (dirtyRef.current) {
+      await persist('flush')
     }
+    onBack()
   }
 
   const progress = applicationItemsProgress(sections)
+  const saveLabel = saving
+    ? 'Saving…'
+    : dirty
+      ? 'Save now'
+      : 'Saved'
 
   if (loading) {
     return <p className="text-ink-soft">Loading application…</p>
@@ -156,7 +251,7 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
       <div className="space-y-4">
         <button
           type="button"
-          onClick={onBack}
+          onClick={() => void handleBack()}
           className="text-sm font-semibold text-sage-deep hover:text-ink"
         >
           ← Opportunities
@@ -176,7 +271,7 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
         <div className="min-w-0">
           <button
             type="button"
-            onClick={onBack}
+            onClick={() => void handleBack()}
             className="text-sm font-semibold text-sage-deep hover:text-ink"
           >
             ← Opportunities
@@ -195,6 +290,11 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
               {progress.done}/{progress.total} prompts marked done
             </p>
           )}
+          {info && (
+            <p className="mt-2 text-sm font-semibold text-sage-deep" role="status">
+              {info}
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <label className="text-sm">
@@ -202,7 +302,10 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
             <select
               className="rounded-lg border border-line bg-panel px-3 py-2 text-sm font-semibold text-ink"
               value={status}
-              onChange={(event) => setStatus(event.target.value as TrackingStatus)}
+              onChange={(event) => {
+                setStatus(event.target.value as TrackingStatus)
+                markDirty()
+              }}
             >
               {TRACKING_STATUSES.map((value) => (
                 <option key={value} value={value}>
@@ -213,11 +316,11 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
           </label>
           <button
             type="button"
-            onClick={() => void handleSave()}
-            disabled={saving}
+            onClick={() => void persist('manual')}
+            disabled={saving || !dirty}
             className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
           >
-            {saving ? 'Saving…' : 'Save'}
+            {saveLabel}
           </button>
         </div>
       </div>
@@ -234,7 +337,10 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
               type="url"
               placeholder="https://…"
               value={applyUrl}
-              onChange={(event) => setApplyUrl(event.target.value)}
+              onChange={(event) => {
+                setApplyUrl(event.target.value)
+                markDirty()
+              }}
             />
           </label>
           <label className="block sm:col-span-2">
@@ -246,7 +352,10 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
               type="url"
               placeholder="Google Doc or Word Online (optional)"
               value={docUrl}
-              onChange={(event) => setDocUrl(event.target.value)}
+              onChange={(event) => {
+                setDocUrl(event.target.value)
+                markDirty()
+              }}
             />
           </label>
           <label className="block">
@@ -255,7 +364,10 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
               className={fieldClass}
               type="date"
               value={submittedAt}
-              onChange={(event) => setSubmittedAt(event.target.value)}
+              onChange={(event) => {
+                setSubmittedAt(event.target.value)
+                markDirty()
+              }}
             />
           </label>
           <label className="block">
@@ -263,7 +375,10 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
             <input
               className={fieldClass}
               value={confirmation}
-              onChange={(event) => setConfirmation(event.target.value)}
+              onChange={(event) => {
+                setConfirmation(event.target.value)
+                markDirty()
+              }}
               placeholder="Portal receipt"
             />
           </label>
@@ -272,7 +387,10 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
             <textarea
               className={`${fieldClass} min-h-16`}
               value={notes}
-              onChange={(event) => setNotes(event.target.value)}
+              onChange={(event) => {
+                setNotes(event.target.value)
+                markDirty()
+              }}
               spellCheck
             />
           </label>
@@ -338,17 +456,15 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
 
       <button
         type="button"
-        onClick={() => setSections((prev) => [...prev, newApplicationItem()])}
+        onClick={() => {
+          setSections((prev) => [...prev, newApplicationItem()])
+          markDirty()
+        }}
         className="text-sm font-bold text-sage hover:text-ink"
       >
         + Add question
       </button>
 
-      {info && (
-        <p className="text-sm font-semibold text-sage-deep" role="status">
-          {info}
-        </p>
-      )}
       {error && (
         <p className="text-sm font-semibold text-coral" role="alert">
           {error}
@@ -358,11 +474,11 @@ export function ApplicationPage({ opportunityId, onBack }: ApplicationPageProps)
       <div className="pb-8">
         <button
           type="button"
-          onClick={() => void handleSave()}
-          disabled={saving}
+          onClick={() => void persist('manual')}
+          disabled={saving || !dirty}
           className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold disabled:opacity-60"
         >
-          {saving ? 'Saving…' : 'Save application'}
+          {saveLabel}
         </button>
       </div>
     </div>
