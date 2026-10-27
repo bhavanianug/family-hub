@@ -12,7 +12,7 @@ import { OpportunitiesPage } from './OpportunitiesPage'
 
 export function AuthenticatedApp() {
   const { connection } = useHealth()
-  const [page, setPage] = useState<AppPage>('opportunities')
+  const [page, setPage] = useState<AppPage>('calendar')
   const [applicationOpportunityId, setApplicationOpportunityId] = useState<
     string | null
   >(null)
